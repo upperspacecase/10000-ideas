@@ -320,29 +320,35 @@ export default function HomePage() {
               <div style={{
                 backgroundColor: section.color,
                 borderRadius: '32px',
-                padding: '24px 32px',
+                padding: isMobile ? '32px' : '48px',
+                minHeight: isMobile ? 'auto' : '200px',
                 display: 'flex',
+                flexDirection: 'column',
                 justifyContent: 'space-between',
-                alignItems: 'center',
                 color: isLightBg ? 'black' : 'white'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <span style={{ fontSize: '24px', fontWeight: '300', opacity: 0.7, fontFamily: 'monospace' }}>
-                    {String(idx + 1).padStart(2, '0')}
-                  </span>
-                  <h2 style={{ fontSize: '28px', fontWeight: '400', margin: 0 }}>
+                <span style={{ fontSize: '32px', fontWeight: '300' }}>
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <h2 style={{
+                    fontSize: isMobile ? 'clamp(40px, 10vw, 80px)' : 'clamp(60px, 8vw, 100px)',
+                    fontWeight: '300',
+                    lineHeight: '0.9',
+                    margin: 0
+                  }}>
                     {section.label}
                   </h2>
+                  <span style={{
+                    backgroundColor: isLightBg ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}>
+                    {phaseProjects.length} project{phaseProjects.length !== 1 ? 's' : ''}
+                  </span>
                 </div>
-                <span style={{
-                  backgroundColor: isLightBg ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  fontSize: '14px',
-                  fontWeight: '600'
-                }}>
-                  {phaseProjects.length} project{phaseProjects.length !== 1 ? 's' : ''}
-                </span>
               </div>
 
               {/* Projects */}
