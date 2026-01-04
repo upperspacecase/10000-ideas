@@ -11,6 +11,7 @@ export default function HomePage() {
   const [expandedProject, setExpandedProject] = useState(null);
   const [joinForm, setJoinForm] = useState({ name: "", email: "", role: "Developer", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [ogImages, setOgImages] = useState({});
 
   // Refs for scroll spy
   const heroRef = useRef(null);
@@ -25,7 +26,23 @@ export default function HomePage() {
   useEffect(() => {
     fetch('/api/projects')
       .then(res => res.json())
-      .then(data => setProjects(Array.isArray(data) ? data : []))
+      .then(data => {
+        const projectList = Array.isArray(data) ? data : [];
+        setProjects(projectList);
+        // Fetch OG images for projects with URLs
+        projectList.forEach(project => {
+          if (project.url) {
+            fetch(`/api/og-metadata?url=${encodeURIComponent(project.url)}`)
+              .then(res => res.json())
+              .then(meta => {
+                if (meta.image) {
+                  setOgImages(prev => ({ ...prev, [project.id]: meta.image }));
+                }
+              })
+              .catch(() => { });
+          }
+        });
+      })
       .catch(err => {
         console.error('Error fetching projects:', err);
         setProjects([]);
@@ -358,154 +375,177 @@ export default function HomePage() {
                           {/* Expanded Content */}
                           {isExpanded && (
                             <div style={{
-                              backgroundColor: '#1a1a1a',
+                              backgroundColor: '#000000',
                               color: 'white',
                               borderRadius: '0 0 24px 24px',
                               padding: '32px 36px',
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
+                              display: 'flex',
                               gap: '32px'
                             }}>
-                              {/* Left: Details */}
-                              <div>
-                                <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>About</h4>
-                                <p style={{ fontSize: '15px', lineHeight: '1.6', marginBottom: '24px' }}>
-                                  {project.description}
-                                </p>
+                              {/* OG Image */}
+                              {ogImages[project.id] && (
+                                <div style={{
+                                  width: '200px',
+                                  minWidth: '200px',
+                                  height: '150px',
+                                  borderRadius: '12px',
+                                  overflow: 'hidden',
+                                  flexShrink: 0
+                                }}>
+                                  <img
+                                    src={ogImages[project.id]}
+                                    alt={project.title}
+                                    style={{
+                                      width: '100%',
+                                      height: '100%',
+                                      objectFit: 'cover'
+                                    }}
+                                  />
+                                </div>
+                              )}
 
-                                {project.needs?.length > 0 && (
-                                  <>
-                                    <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>What we need</h4>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
-                                      {project.needs.map((need, i) => (
-                                        <span key={i} style={{
-                                          padding: '6px 12px',
-                                          backgroundColor: 'rgba(255,255,255,0.1)',
-                                          borderRadius: '8px',
-                                          fontSize: '13px'
-                                        }}>
-                                          {need}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </>
-                                )}
+                              {/* Content */}
+                              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                                <div>
+                                  <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>About</h4>
+                                  <p style={{ fontSize: '15px', lineHeight: '1.6', marginBottom: '24px' }}>
+                                    {project.description}
+                                  </p>
 
-                                {project.tags?.length > 0 && (
-                                  <>
-                                    <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>Tags</h4>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                      {project.tags.map((tag, i) => (
-                                        <div key={i} style={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                          padding: '4px 10px',
-                                          backgroundColor: 'rgba(255,255,255,0.05)',
-                                          borderRadius: '6px',
-                                          fontSize: '12px',
-                                          opacity: 0.7
-                                        }}>
-                                          <Tag style={{ width: '10px', height: '10px' }} />
-                                          {tag}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </>
-                                )}
-                              </div>
+                                  {project.needs?.length > 0 && (
+                                    <>
+                                      <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>What we need</h4>
+                                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+                                        {project.needs.map((need, i) => (
+                                          <span key={i} style={{
+                                            padding: '6px 12px',
+                                            backgroundColor: 'rgba(255,255,255,0.1)',
+                                            borderRadius: '8px',
+                                            fontSize: '13px'
+                                          }}>
+                                            {need}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </>
+                                  )}
 
-                              {/* Right: Join Form */}
-                              <div style={{
-                                backgroundColor: 'rgba(255,255,255,0.05)',
-                                borderRadius: '16px',
-                                padding: '24px'
-                              }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-                                  <Users style={{ width: '18px', height: '18px' }} />
-                                  <h4 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>Join the Team</h4>
+                                  {project.tags?.length > 0 && (
+                                    <>
+                                      <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>Tags</h4>
+                                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                        {project.tags.map((tag, i) => (
+                                          <div key={i} style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            padding: '4px 10px',
+                                            backgroundColor: 'rgba(255,255,255,0.05)',
+                                            borderRadius: '6px',
+                                            fontSize: '12px',
+                                            opacity: 0.7
+                                          }}>
+                                            <Tag style={{ width: '10px', height: '10px' }} />
+                                            {tag}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </>
+                                  )}
                                 </div>
 
-                                <form onSubmit={(e) => handleJoinSubmit(e, project.id)} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                  <input
-                                    required
-                                    placeholder="Your name"
-                                    style={{
-                                      padding: '12px',
-                                      borderRadius: '8px',
-                                      backgroundColor: 'rgba(255,255,255,0.1)',
-                                      border: 'none',
-                                      color: 'white',
-                                      fontSize: '14px'
-                                    }}
-                                    value={joinForm.name}
-                                    onChange={e => setJoinForm({ ...joinForm, name: e.target.value })}
-                                  />
-                                  <input
-                                    required
-                                    type="email"
-                                    placeholder="Email"
-                                    style={{
-                                      padding: '12px',
-                                      borderRadius: '8px',
-                                      backgroundColor: 'rgba(255,255,255,0.1)',
-                                      border: 'none',
-                                      color: 'white',
-                                      fontSize: '14px'
-                                    }}
-                                    value={joinForm.email}
-                                    onChange={e => setJoinForm({ ...joinForm, email: e.target.value })}
-                                  />
-                                  <select
-                                    style={{
-                                      padding: '12px',
-                                      borderRadius: '8px',
-                                      backgroundColor: 'rgba(255,255,255,0.1)',
-                                      border: 'none',
-                                      color: 'white',
-                                      fontSize: '14px'
-                                    }}
-                                    value={joinForm.role}
-                                    onChange={e => setJoinForm({ ...joinForm, role: e.target.value })}
-                                  >
-                                    <option value="Developer">Developer</option>
-                                    <option value="Designer">Designer</option>
-                                    <option value="Marketer">Marketer</option>
-                                    <option value="Product Manager">Product Manager</option>
-                                    <option value="Other">Other</option>
-                                  </select>
-                                  <textarea
-                                    rows={2}
-                                    placeholder="Why do you want to join?"
-                                    style={{
-                                      padding: '12px',
-                                      borderRadius: '8px',
-                                      backgroundColor: 'rgba(255,255,255,0.1)',
-                                      border: 'none',
-                                      color: 'white',
-                                      fontSize: '14px',
-                                      resize: 'none'
-                                    }}
-                                    value={joinForm.message}
-                                    onChange={e => setJoinForm({ ...joinForm, message: e.target.value })}
-                                  />
-                                  <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    style={{
-                                      padding: '14px',
-                                      backgroundColor: '#FF4400',
-                                      color: 'white',
-                                      borderRadius: '8px',
-                                      fontWeight: '600',
-                                      border: 'none',
-                                      cursor: 'pointer',
-                                      opacity: isSubmitting ? 0.5 : 1
-                                    }}
-                                  >
-                                    {isSubmitting ? "Sending..." : "Send Request"}
-                                  </button>
-                                </form>
+                                {/* Right: Join Form */}
+                                <div style={{
+                                  backgroundColor: 'rgba(255,255,255,0.05)',
+                                  borderRadius: '16px',
+                                  padding: '24px'
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                                    <Users style={{ width: '18px', height: '18px' }} />
+                                    <h4 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>Join the Team</h4>
+                                  </div>
+
+                                  <form onSubmit={(e) => handleJoinSubmit(e, project.id)} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <input
+                                      required
+                                      placeholder="Your name"
+                                      style={{
+                                        padding: '12px',
+                                        borderRadius: '8px',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        border: 'none',
+                                        color: 'white',
+                                        fontSize: '14px'
+                                      }}
+                                      value={joinForm.name}
+                                      onChange={e => setJoinForm({ ...joinForm, name: e.target.value })}
+                                    />
+                                    <input
+                                      required
+                                      type="email"
+                                      placeholder="Email"
+                                      style={{
+                                        padding: '12px',
+                                        borderRadius: '8px',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        border: 'none',
+                                        color: 'white',
+                                        fontSize: '14px'
+                                      }}
+                                      value={joinForm.email}
+                                      onChange={e => setJoinForm({ ...joinForm, email: e.target.value })}
+                                    />
+                                    <select
+                                      style={{
+                                        padding: '12px',
+                                        borderRadius: '8px',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        border: 'none',
+                                        color: 'white',
+                                        fontSize: '14px'
+                                      }}
+                                      value={joinForm.role}
+                                      onChange={e => setJoinForm({ ...joinForm, role: e.target.value })}
+                                    >
+                                      <option value="Developer">Developer</option>
+                                      <option value="Designer">Designer</option>
+                                      <option value="Marketer">Marketer</option>
+                                      <option value="Product Manager">Product Manager</option>
+                                      <option value="Other">Other</option>
+                                    </select>
+                                    <textarea
+                                      rows={2}
+                                      placeholder="Why do you want to join?"
+                                      style={{
+                                        padding: '12px',
+                                        borderRadius: '8px',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        border: 'none',
+                                        color: 'white',
+                                        fontSize: '14px',
+                                        resize: 'none'
+                                      }}
+                                      value={joinForm.message}
+                                      onChange={e => setJoinForm({ ...joinForm, message: e.target.value })}
+                                    />
+                                    <button
+                                      type="submit"
+                                      disabled={isSubmitting}
+                                      style={{
+                                        padding: '14px',
+                                        backgroundColor: '#FF4400',
+                                        color: 'white',
+                                        borderRadius: '8px',
+                                        fontWeight: '600',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        opacity: isSubmitting ? 0.5 : 1
+                                      }}
+                                    >
+                                      {isSubmitting ? "Sending..." : "Send Request"}
+                                    </button>
+                                  </form>
+                                </div>
                               </div>
                             </div>
                           )}
