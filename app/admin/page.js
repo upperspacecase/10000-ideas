@@ -187,8 +187,8 @@ export default function AdminPage() {
     const labelStyle = { display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' };
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: '#F5F2EB', padding: '24px' }}>
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#F5F2EB', padding: '24px', overflowY: 'auto', overflowX: 'hidden', maxWidth: '100vw', boxSizing: 'border-box' }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
                 {/* Header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
                     <div>
