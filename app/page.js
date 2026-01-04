@@ -2,257 +2,535 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowRight, Lightbulb, AlertCircle } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown, Users, Tag } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
-  // const [backlogIdeas, setBacklogIdeas] = useState([]); // Unused for now
-  // const [isLoading, setIsLoading] = useState(true); // Unused for now
+  const [activeSection, setActiveSection] = useState("hero");
+  const [expandedProject, setExpandedProject] = useState(null);
+  const [joinForm, setJoinForm] = useState({ name: "", email: "", role: "Developer", message: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const launchRef = useRef(null);
+  // Refs for scroll spy
+  const heroRef = useRef(null);
   const ideationRef = useRef(null);
   const designRef = useRef(null);
   const developmentRef = useRef(null);
+  const testingRef = useRef(null);
   const gtmRef = useRef(null);
   const launchedRef = useRef(null);
-
-  const [activeSection, setActiveSection] = useState('launch');
+  const scrollContainerRef = useRef(null);
 
   useEffect(() => {
-    // Fetch projects
     fetch('/api/projects')
       .then(res => res.json())
-      .then(data => {
-        // Ensure data is an array
-        setProjects(Array.isArray(data) ? data : []);
-        // setIsLoading(false);
-      })
+      .then(data => setProjects(Array.isArray(data) ? data : []))
       .catch(err => {
         console.error('Error fetching projects:', err);
         setProjects([]);
-        // setIsLoading(false);
       });
-
-    // Fetch backlog (commented out as unused)
-    /*
-    fetch('/api/backlog')
-      .then(res => res.json())
-      .then(data => setBacklogIdeas(Array.isArray(data) ? data : []))
-      .catch(err => console.error('Error fetching backlog:', err));
-    */
   }, []);
 
+  // Scroll spy
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + window.innerHeight / 3;
+    const container = scrollContainerRef.current;
+    if (!container) return;
 
+    const handleScroll = () => {
+      const scrollTop = container.scrollTop;
       const sections = [
-        { ref: launchedRef, id: 'launched' },
-        { ref: gtmRef, id: 'gtm' },
-        { ref: developmentRef, id: 'development' },
-        { ref: designRef, id: 'design' },
-        { ref: ideationRef, id: 'ideation' },
-        { ref: launchRef, id: 'launch' }
+        { ref: heroRef, id: "hero" },
+        { ref: ideationRef, id: "ideation" },
+        { ref: designRef, id: "design" },
+        { ref: developmentRef, id: "development" },
+        { ref: testingRef, id: "testing" },
+        { ref: gtmRef, id: "gtm" },
+        { ref: launchedRef, id: "launched" },
       ];
 
-      for (const section of sections) {
-        if (section.ref.current && scrollPosition >= section.ref.current.offsetTop) {
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        if (section.ref.current && section.ref.current.offsetTop <= scrollTop + 200) {
           setActiveSection(section.id);
           break;
         }
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const dailyProject = projects.find(p => p.phase === 'Launch') || projects[0];
-  const projectsByPhase = (phase) => projects.filter(p => p.phase === phase);
-
-  return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-white">
-      <main className="relative">
-        <div className="lg:pl-16 p-4 md:p-12 max-w-[1800px] mx-auto space-y-24 md:space-y-32 pb-32">
-
-          {/* Site Descriptor Header */}
-          <div className="pt-24 md:pt-12 relative z-20" ref={launchRef}>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tighter mb-4">10,000 IDEAS</h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-8">
-              An open-source venture studio launching one new project every day.
-              Join a team, submit an idea, or just watch us build.
-            </p>
-
-            {/* Dual CTAs */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
-              <Link
-                href="/submit-problem"
-                className="group p-4 md:p-5 rounded-xl border-2 border-black/10 hover:border-black transition-all bg-white hover:bg-black hover:text-white text-left block cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="h-5 w-5 opacity-50 group-hover:opacity-100" />
-                    <div>
-                      <h3 className="text-lg font-bold">Submit a Problem</h3>
-                      <p className="text-xs opacity-60 group-hover:opacity-80 mt-0.5">Share a problem that needs solving</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-5 w-5 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                </div>
-              </Link>
-
-              <Link
-                href="/submit"
-                className="group p-4 md:p-5 rounded-xl border-2 border-black/10 hover:border-black transition-all bg-white hover:bg-black hover:text-white text-left block cursor-pointer"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Lightbulb className="h-5 w-5 opacity-50 group-hover:opacity-100" />
-                    <div>
-                      <h3 className="text-lg font-bold">Submit an Idea</h3>
-                      <p className="text-xs opacity-60 group-hover:opacity-80 mt-0.5">Pitch a project we should build</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-5 w-5 opacity-30 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                </div>
-              </Link>
-            </div>
-          </div>
-
-          {/* Today&apos;s Launch */}
-          {dailyProject && (
-            <div>
-              <div className="flex items-center gap-4 mb-8 md:mb-12">
-                <div className="h-px flex-1 bg-black/10" />
-                <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Today&apos;s Launch</h2>
-                <div className="h-px flex-1 bg-black/10" />
-              </div>
-              <div className="w-full relative">
-                <div className="p-8 md:p-12 rounded-3xl bg-white border-2 border-black/10">
-                  <h3 className="text-2xl md:text-4xl font-bold mb-4">{dailyProject.title}</h3>
-                  <p className="text-lg text-muted-foreground mb-6">{dailyProject.description}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {dailyProject.tags?.map((tag, i) => (
-                      <span key={i} className="px-3 py-1 bg-primary text-primary-foreground rounded-full text-sm font-semibold">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Phase Sections */}
-          <PhaseSection
-            ref={ideationRef}
-            title="Ideation Phase"
-            description="Where raw concepts become actionable plans. Vote on the backlog or submit your own."
-            color="yellow-500"
-            projects={projectsByPhase('Ideation')}
-          />
-
-          <PhaseSection
-            ref={designRef}
-            title="In Design"
-            description="Crafting the user experience and visual identity. Pixels are being pushed right now."
-            color="pink-500"
-            projects={projectsByPhase('Design')}
-          />
-
-          <PhaseSection
-            ref={developmentRef}
-            title="Under Development"
-            description="Code is being written. Systems are coming online. The machine is waking up."
-            color="blue-500"
-            projects={projectsByPhase('Development')}
-          />
-
-          <PhaseSection
-            ref={gtmRef}
-            title="Go To Market"
-            description="Launch prep, marketing campaigns, and growth hacking. It's showtime."
-            color="green-500"
-            projects={projectsByPhase('Testing')}
-          />
-
-          <PhaseSection
-            ref={launchedRef}
-            title="Launched"
-            description="Live in production. Users in the wild. The journey continues."
-            color="purple-500"
-            projects={projectsByPhase('Post-Launch')}
-          />
-
-        </div>
-      </main>
-    </div>
-  );
-}
-
-const PhaseSection = ({ title, description, color, projects }, ref) => {
-  // Map simple color names to specific Tailwind classes or hex values
-  const colorMap = {
-    "yellow-500": "bg-yellow-500",
-    "pink-500": "bg-pink-500",
-    "blue-500": "bg-blue-500",
-    "green-500": "bg-green-500",
-    "purple-500": "bg-purple-500"
+  const scrollToSection = (ref) => {
+    if (ref.current && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: ref.current.offsetTop,
+        behavior: 'smooth'
+      });
+    }
   };
 
-  const bgClass = colorMap[color] || "bg-gray-800";
+  const projectsByPhase = (phase) => projects.filter(p => p.phase === phase);
+
+  const handleJoinSubmit = async (e, projectId) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch("/api/join-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId, ...joinForm }),
+      });
+
+      if (!res.ok) throw new Error("Failed to submit");
+      toast.success("Request sent! The team will reach out.");
+      setJoinForm({ name: "", email: "", role: "Developer", message: "" });
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const sections = [
+    { id: "hero", label: "10K Ideas", ref: heroRef, color: "#FF4400" },
+    { id: "ideation", label: "Ideation", ref: ideationRef, color: "#FFCC00", phase: "Ideation" },
+    { id: "design", label: "Design", ref: designRef, color: "#FF0066", phase: "Design" },
+    { id: "development", label: "Development", ref: developmentRef, color: "#3333FF", phase: "Development" },
+    { id: "testing", label: "Testing", ref: testingRef, color: "#00CC66", phase: "Testing" },
+    { id: "gtm", label: "GTM", ref: gtmRef, color: "#6600CC", phase: "GTM" },
+    { id: "launched", label: "Launched", ref: launchedRef, color: "#000000", phase: "Post-Launch" },
+  ];
 
   return (
-    <div ref={ref} className="scroll-mt-24 mb-16 md:mb-24">
-      <div className={`p-8 md:p-12 rounded-[2rem] text-white ${bgClass} min-h-[240px] flex flex-col justify-center relative overflow-hidden mb-8 shadow-xl`}>
-        <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 relative z-10">{title}</h1>
-        <p className="text-lg md:text-xl font-medium opacity-90 max-w-2xl relative z-10 leading-snug">{description}</p>
+    <main style={{
+      display: 'flex',
+      flexDirection: 'row',
+      height: '100vh',
+      width: '100%',
+      backgroundColor: '#F5F2EB',
+      overflow: 'hidden'
+    }}>
+      {/* Left Navigation */}
+      <div style={{
+        width: '160px',
+        minWidth: '160px',
+        padding: '16px',
+        height: '100%',
+        overflowY: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '8px'
+      }}>
+        <div style={{
+          backgroundColor: 'white',
+          padding: '16px',
+          borderRadius: '12px',
+          marginBottom: '8px',
+          border: '1px solid rgba(0,0,0,0.05)'
+        }}>
+          <h1 style={{ fontWeight: 'bold', fontSize: '18px', letterSpacing: '-0.02em', margin: 0 }}>10K IDEAS</h1>
+        </div>
 
-        {/* Abstract shapes for visual interest */}
-        <div className="absolute -right-20 -bottom-40 w-80 h-80 rounded-full bg-white/20 blur-3xl pointer-events-none mix-blend-overlay" />
-        <div className="absolute -left-20 -top-40 w-60 h-60 rounded-full bg-black/10 blur-3xl pointer-events-none" />
+        {sections.map((section, idx) => {
+          const isActive = activeSection === section.id;
+          const isLightColor = section.id === 'ideation';
+          return (
+            <button
+              key={section.id}
+              onClick={() => scrollToSection(section.ref)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                padding: '12px',
+                borderRadius: '12px',
+                border: 'none',
+                backgroundColor: section.color,
+                color: isLightColor ? 'black' : 'white',
+                height: isActive ? '100px' : '60px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                opacity: isActive ? 1 : 0.85,
+                transform: isActive ? 'scale(1.02)' : 'scale(1)'
+              }}
+            >
+              <span style={{ fontSize: '10px', fontFamily: 'monospace', opacity: 0.7 }}>
+                {String(idx).padStart(2, '0')}
+              </span>
+              <span style={{ fontSize: '13px', fontWeight: '600' }}>
+                {section.label}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {projects.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map(project => (
-            <Link
-              key={project.id}
-              href={`/project/${project.id}`}
-              className="group p-6 rounded-2xl bg-white border-2 border-black/5 hover:border-black/20 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 block h-full flex flex-col"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="px-3 py-1 rounded-full bg-gray-100 text-xs font-bold uppercase tracking-wider text-gray-600">
-                  {project.phase}
+      {/* Right Content */}
+      <div
+        ref={scrollContainerRef}
+        style={{
+          flex: 1,
+          height: '100%',
+          overflowY: 'auto',
+          padding: '8px'
+        }}
+      >
+        {/* HERO SECTION */}
+        <div ref={heroRef} style={{ marginBottom: '16px' }}>
+          <div style={{
+            backgroundColor: '#FF4400',
+            borderRadius: '32px',
+            padding: '48px',
+            minHeight: '450px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            color: 'white'
+          }}>
+            <span style={{ fontSize: '32px', fontWeight: '300' }}>00</span>
+            <div>
+              <h1 style={{
+                fontSize: 'clamp(50px, 10vw, 120px)',
+                fontWeight: '300',
+                lineHeight: '0.9',
+                margin: 0
+              }}>
+                10,000<br />Ideas
+              </h1>
+              <p style={{ fontSize: '18px', opacity: 0.8, marginTop: '24px', maxWidth: '500px' }}>
+                An open-source venture studio launching one new project every day.
+              </p>
+
+              {/* Today's Launch Banner */}
+              {projects.find(p => p.is_todays_launch) && (
+                <div
+                  onClick={() => setExpandedProject(projects.find(p => p.is_todays_launch)?.id)}
+                  style={{
+                    marginTop: '32px',
+                    backgroundColor: '#000000',
+                    borderRadius: '20px',
+                    padding: '20px 28px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#FF4400',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      fontWeight: '700',
+                      letterSpacing: '0.1em',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}>
+                      <span style={{
+                        width: '6px',
+                        height: '6px',
+                        backgroundColor: 'white',
+                        borderRadius: '50%',
+                        animation: 'pulse 1.5s infinite'
+                      }} />
+                      LIVE NOW
+                    </div>
+                    <span style={{ fontSize: '18px', fontWeight: '500' }}>
+                      {projects.find(p => p.is_todays_launch)?.title}
+                    </span>
+                  </div>
+                  <ArrowRight style={{ width: '20px', height: '20px' }} />
                 </div>
-                <ArrowRight className="w-5 h-5 text-gray-300 group-hover:text-black transform group-hover:translate-x-1 transition-all" />
-              </div>
+              )}
 
-              <h3 className="text-2xl font-bold mb-3 leading-tight group-hover:text-primary transition-colors">{project.title}</h3>
-              <p className="text-muted-foreground text-base line-clamp-3 mb-6 flex-grow">{project.description}</p>
-
-              <div className="flex flex-wrap gap-2 mt-auto">
-                {project.tags?.slice(0, 3).map((tag, i) => (
-                  <span key={i} className="text-xs font-medium text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <div className="border-2 border-dashed border-black/10 rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-gray-50/50 min-h-[200px]">
-          <div className="p-3 bg-white rounded-full mb-4 shadow-sm">
-            <Lightbulb className="w-6 h-6 text-gray-400" />
+            </div>
           </div>
-          <h3 className="text-lg font-bold text-gray-900 mb-1">No projects in this phase yet</h3>
-          <p className="text-gray-500 max-w-sm">
-            We move fast. Check back tomorrow or <Link href="/submit" className="text-primary hover:underline font-bold">submit an idea</Link> to jumpstart this phase.
-          </p>
         </div>
-      )}
-    </div>
+
+        {/* PHASE SECTIONS */}
+        {sections.slice(1).map((section, idx) => {
+          const phaseProjects = projectsByPhase(section.phase);
+          const isLightBg = section.id === 'ideation';
+
+          return (
+            <div key={section.id} ref={section.ref} style={{ marginBottom: '16px' }}>
+              {/* Section Header - Fully Rounded Pill */}
+              <div style={{
+                backgroundColor: section.color,
+                borderRadius: '32px',
+                padding: '48px',
+                minHeight: '180px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                color: isLightBg ? 'black' : 'white'
+              }}>
+                <span style={{ fontSize: '32px', fontWeight: '300' }}>
+                  {String(idx + 1).padStart(2, '0')}
+                </span>
+                <h2 style={{
+                  fontSize: 'clamp(40px, 8vw, 80px)',
+                  fontWeight: '300',
+                  lineHeight: '0.9',
+                  margin: 0
+                }}>
+                  {section.label}
+                </h2>
+              </div>
+
+              {/* Projects Area - Separate from header */}
+              <div style={{
+                marginTop: '12px',
+                padding: '0'
+              }}>
+                {phaseProjects.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {phaseProjects.map((project) => {
+                      const isExpanded = expandedProject === project.id;
+
+                      return (
+                        <div key={project.id}>
+                          {/* Project Card Header */}
+                          <div
+                            onClick={() => setExpandedProject(isExpanded ? null : project.id)}
+                            style={{
+                              backgroundColor: '#000000',
+                              color: 'white',
+                              borderRadius: isExpanded ? '24px 24px 0 0' : '24px',
+                              padding: '28px 36px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              minHeight: '80px',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '40px', flex: 1 }}>
+                              <h3 style={{
+                                fontSize: '24px',
+                                fontWeight: '400',
+                                margin: 0,
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {project.title}
+                              </h3>
+                              <p style={{
+                                fontSize: '13px',
+                                opacity: 0.5,
+                                margin: 0,
+                                maxWidth: '280px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {project.description}
+                              </p>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                              <div style={{
+                                border: '1px solid rgba(255,255,255,0.3)',
+                                borderRadius: '24px',
+                                padding: '6px 16px',
+                                fontSize: '10px',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                                fontFamily: 'monospace'
+                              }}>
+                                {project.phase}
+                              </div>
+                              <ChevronDown style={{
+                                width: '20px',
+                                height: '20px',
+                                transition: 'transform 0.2s ease',
+                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                              }} />
+                            </div>
+                          </div>
+
+                          {/* Expanded Content */}
+                          {isExpanded && (
+                            <div style={{
+                              backgroundColor: '#1a1a1a',
+                              color: 'white',
+                              borderRadius: '0 0 24px 24px',
+                              padding: '32px 36px',
+                              display: 'grid',
+                              gridTemplateColumns: '1fr 1fr',
+                              gap: '32px'
+                            }}>
+                              {/* Left: Details */}
+                              <div>
+                                <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>About</h4>
+                                <p style={{ fontSize: '15px', lineHeight: '1.6', marginBottom: '24px' }}>
+                                  {project.description}
+                                </p>
+
+                                {project.needs?.length > 0 && (
+                                  <>
+                                    <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>What we need</h4>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+                                      {project.needs.map((need, i) => (
+                                        <span key={i} style={{
+                                          padding: '6px 12px',
+                                          backgroundColor: 'rgba(255,255,255,0.1)',
+                                          borderRadius: '8px',
+                                          fontSize: '13px'
+                                        }}>
+                                          {need}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </>
+                                )}
+
+                                {project.tags?.length > 0 && (
+                                  <>
+                                    <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>Tags</h4>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                      {project.tags.map((tag, i) => (
+                                        <div key={i} style={{
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '4px',
+                                          padding: '4px 10px',
+                                          backgroundColor: 'rgba(255,255,255,0.05)',
+                                          borderRadius: '6px',
+                                          fontSize: '12px',
+                                          opacity: 0.7
+                                        }}>
+                                          <Tag style={{ width: '10px', height: '10px' }} />
+                                          {tag}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </>
+                                )}
+                              </div>
+
+                              {/* Right: Join Form */}
+                              <div style={{
+                                backgroundColor: 'rgba(255,255,255,0.05)',
+                                borderRadius: '16px',
+                                padding: '24px'
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                                  <Users style={{ width: '18px', height: '18px' }} />
+                                  <h4 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>Join the Team</h4>
+                                </div>
+
+                                <form onSubmit={(e) => handleJoinSubmit(e, project.id)} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                  <input
+                                    required
+                                    placeholder="Your name"
+                                    style={{
+                                      padding: '12px',
+                                      borderRadius: '8px',
+                                      backgroundColor: 'rgba(255,255,255,0.1)',
+                                      border: 'none',
+                                      color: 'white',
+                                      fontSize: '14px'
+                                    }}
+                                    value={joinForm.name}
+                                    onChange={e => setJoinForm({ ...joinForm, name: e.target.value })}
+                                  />
+                                  <input
+                                    required
+                                    type="email"
+                                    placeholder="Email"
+                                    style={{
+                                      padding: '12px',
+                                      borderRadius: '8px',
+                                      backgroundColor: 'rgba(255,255,255,0.1)',
+                                      border: 'none',
+                                      color: 'white',
+                                      fontSize: '14px'
+                                    }}
+                                    value={joinForm.email}
+                                    onChange={e => setJoinForm({ ...joinForm, email: e.target.value })}
+                                  />
+                                  <select
+                                    style={{
+                                      padding: '12px',
+                                      borderRadius: '8px',
+                                      backgroundColor: 'rgba(255,255,255,0.1)',
+                                      border: 'none',
+                                      color: 'white',
+                                      fontSize: '14px'
+                                    }}
+                                    value={joinForm.role}
+                                    onChange={e => setJoinForm({ ...joinForm, role: e.target.value })}
+                                  >
+                                    <option value="Developer">Developer</option>
+                                    <option value="Designer">Designer</option>
+                                    <option value="Marketer">Marketer</option>
+                                    <option value="Product Manager">Product Manager</option>
+                                    <option value="Other">Other</option>
+                                  </select>
+                                  <textarea
+                                    rows={2}
+                                    placeholder="Why do you want to join?"
+                                    style={{
+                                      padding: '12px',
+                                      borderRadius: '8px',
+                                      backgroundColor: 'rgba(255,255,255,0.1)',
+                                      border: 'none',
+                                      color: 'white',
+                                      fontSize: '14px',
+                                      resize: 'none'
+                                    }}
+                                    value={joinForm.message}
+                                    onChange={e => setJoinForm({ ...joinForm, message: e.target.value })}
+                                  />
+                                  <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    style={{
+                                      padding: '14px',
+                                      backgroundColor: '#FF4400',
+                                      color: 'white',
+                                      borderRadius: '8px',
+                                      fontWeight: '600',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                      opacity: isSubmitting ? 0.5 : 1
+                                    }}
+                                  >
+                                    {isSubmitting ? "Sending..." : "Send Request"}
+                                  </button>
+                                </form>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div style={{
+                    padding: '40px',
+                    textAlign: 'center',
+                    color: 'rgba(0,0,0,0.4)',
+                    border: '2px dashed rgba(0,0,0,0.1)',
+                    borderRadius: '16px'
+                  }}>
+                    <p style={{ margin: 0 }}>No projects in {section.label} yet</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        <div style={{ height: '100px' }} />
+      </div>
+    </main>
   );
-};
+}

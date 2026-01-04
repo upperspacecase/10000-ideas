@@ -93,7 +93,7 @@ INSERT INTO projects (title, description, phase, tags) VALUES ('Welcome to 10,00
 
                 <div className="bg-gray-900 rounded-xl p-6 text-gray-300 font-mono text-sm mb-8 min-h-[150px]">
                     {logs.length === 0 ? (
-                        <span className="opacity-50">// Logs will appear here...</span>
+                        <span className="opacity-50"># Logs will appear here...</span>
                     ) : (
                         logs.map((log, i) => (
                             <div key={i} className="mb-1">{log}</div>

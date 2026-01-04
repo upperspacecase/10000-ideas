@@ -27,3 +27,33 @@ export async function GET(request, { params }) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
+export async function PATCH(request, { params }) {
+    try {
+        if (!supabase) {
+            return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+        }
+
+        const body = await request.json();
+
+        const { data: project, error } = await supabase
+            .from('projects')
+            .update({
+                phase: body.phase,
+                ...(body.is_todays_launch !== undefined && { is_todays_launch: body.is_todays_launch })
+            })
+            .eq('id', params.id)
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error updating project:', error);
+            return NextResponse.json({ error: 'Failed to update project' }, { status: 500 });
+        }
+
+        return NextResponse.json(project);
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}

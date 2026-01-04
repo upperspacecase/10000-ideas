@@ -14,7 +14,7 @@ export default function ProjectDetail() {
     const [joinForm, setJoinForm] = useState({
         name: "",
         email: "",
-        role: "Developer", // default
+        role: "Developer",
         message: ""
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,174 +60,371 @@ export default function ProjectDetail() {
         }
     };
 
+    const phaseColors = {
+        'Ideation': '#FFCC00',
+        'Design': '#FF0066',
+        'Development': '#3333FF',
+        'Testing': '#00CC66',
+        'GTM': '#6600CC',
+        'Launch': '#FF4400',
+        'Post-Launch': '#000000'
+    };
+
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div style={{
+                minHeight: '100vh',
+                backgroundColor: '#F5F2EB',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+            }}>
+                <div style={{
+                    width: '48px',
+                    height: '48px',
+                    border: '3px solid #FF4400',
+                    borderTopColor: 'transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                }} />
             </div>
         );
     }
 
     if (!project) {
         return (
-            <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-                <h1 className="text-2xl font-bold mb-4">Project not found 😕</h1>
-                <Link href="/" className="text-primary hover:underline">Back to Home</Link>
+            <div style={{
+                minHeight: '100vh',
+                backgroundColor: '#F5F2EB',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '16px'
+            }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>Project not found 😕</h1>
+                <Link href="/" style={{ color: '#FF4400', textDecoration: 'underline' }}>Back to Home</Link>
             </div>
         );
     }
 
-    return (
-        <div className="min-h-screen bg-background text-foreground font-sans pb-24">
-            <div className="max-w-5xl mx-auto p-4 md:p-8">
+    const phaseColor = phaseColors[project.phase] || '#000000';
+    const isLightPhase = project.phase === 'Ideation';
 
-                {/* Header */}
-                <header className="mb-8 md:mb-12 pt-8">
-                    <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6 transition-colors">
-                        <ArrowLeft className="w-4 h-4 mr-2" />
+    return (
+        <div style={{
+            minHeight: '100vh',
+            backgroundColor: '#F5F2EB',
+            paddingBottom: '100px'
+        }}>
+            {/* Hero Header */}
+            <div style={{
+                backgroundColor: phaseColor,
+                color: isLightPhase ? 'black' : 'white',
+                padding: '48px',
+                margin: '16px',
+                borderRadius: '32px',
+                minHeight: '300px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between'
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Link href="/" style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        color: isLightPhase ? 'black' : 'white',
+                        textDecoration: 'none',
+                        opacity: 0.8,
+                        fontSize: '14px'
+                    }}>
+                        <ArrowLeft style={{ width: '16px', height: '16px' }} />
                         Back to Home
                     </Link>
+                    <button
+                        onClick={() => {
+                            navigator.clipboard.writeText(window.location.href);
+                            toast.success("Link copied!");
+                        }}
+                        style={{
+                            padding: '12px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(255,255,255,0.2)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: isLightPhase ? 'black' : 'white'
+                        }}
+                    >
+                        <Share2 style={{ width: '20px', height: '20px' }} />
+                    </button>
+                </div>
 
-                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                        <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                <span className={`px-3 py-1 rounded-full text-sm font-semibold 
-                  ${project.phase === 'Ideation' ? 'bg-yellow-100 text-yellow-700' :
-                                        project.phase === 'Design' ? 'bg-pink-100 text-pink-700' :
-                                            project.phase === 'Development' ? 'bg-blue-100 text-blue-700' :
-                                                project.phase === 'Launch' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100'}`
-                                }>
-                                    {project.phase}
-                                </span>
-                                <span className="text-muted-foreground text-sm flex items-center gap-1">
-                                    <Calendar className="w-3 h-3" />
-                                    {format(new Date(project.created_at), 'MMMM d, yyyy')}
-                                </span>
+                <div>
+                    <div style={{
+                        display: 'inline-block',
+                        padding: '8px 16px',
+                        backgroundColor: 'rgba(255,255,255,0.2)',
+                        borderRadius: '24px',
+                        fontSize: '12px',
+                        fontFamily: 'monospace',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.1em',
+                        marginBottom: '16px'
+                    }}>
+                        {project.phase}
+                    </div>
+                    <h1 style={{
+                        fontSize: 'clamp(36px, 8vw, 72px)',
+                        fontWeight: '400',
+                        lineHeight: '1',
+                        margin: 0
+                    }}>
+                        {project.title}
+                    </h1>
+                    <p style={{
+                        fontSize: '14px',
+                        opacity: 0.7,
+                        marginTop: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
+                    }}>
+                        <Calendar style={{ width: '14px', height: '14px' }} />
+                        {format(new Date(project.created_at), 'MMMM d, yyyy')}
+                    </p>
+                </div>
+            </div>
+
+            {/* Content */}
+            <div style={{
+                maxWidth: '1200px',
+                margin: '0 auto',
+                padding: '0 24px',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                gap: '32px'
+            }}>
+                {/* Main Content */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                    <section style={{
+                        backgroundColor: 'white',
+                        padding: '32px',
+                        borderRadius: '24px',
+                        border: '1px solid rgba(0,0,0,0.05)'
+                    }}>
+                        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>About</h2>
+                        <p style={{ fontSize: '16px', lineHeight: '1.6', color: '#666', whiteSpace: 'pre-wrap' }}>
+                            {project.description}
+                        </p>
+                    </section>
+
+                    <section style={{
+                        backgroundColor: 'white',
+                        padding: '32px',
+                        borderRadius: '24px',
+                        border: '1px solid rgba(0,0,0,0.05)'
+                    }}>
+                        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>What we need</h2>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {project.needs?.length > 0 ? (
+                                project.needs.map((need, i) => (
+                                    <span key={i} style={{
+                                        padding: '8px 16px',
+                                        backgroundColor: '#F5F2EB',
+                                        borderRadius: '12px',
+                                        fontSize: '14px'
+                                    }}>
+                                        {need}
+                                    </span>
+                                ))
+                            ) : (
+                                <p style={{ color: '#999' }}>No specific needs listed yet.</p>
+                            )}
+                        </div>
+                    </section>
+
+                    <section style={{
+                        backgroundColor: 'white',
+                        padding: '32px',
+                        borderRadius: '24px',
+                        border: '1px solid rgba(0,0,0,0.05)'
+                    }}>
+                        <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '16px' }}>Tags</h2>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                            {project.tags?.map((tag, i) => (
+                                <div key={i} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '6px 12px',
+                                    backgroundColor: '#F5F2EB',
+                                    borderRadius: '8px',
+                                    fontSize: '13px',
+                                    color: '#666'
+                                }}>
+                                    <Tag style={{ width: '12px', height: '12px' }} />
+                                    {tag}
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                </div>
+
+                {/* Sidebar - Join Form */}
+                <div>
+                    <div style={{
+                        backgroundColor: 'white',
+                        padding: '32px',
+                        borderRadius: '24px',
+                        border: '1px solid rgba(0,0,0,0.05)',
+                        position: 'sticky',
+                        top: '24px'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                            <div style={{
+                                padding: '8px',
+                                backgroundColor: '#FF440020',
+                                borderRadius: '8px',
+                                color: '#FF4400'
+                            }}>
+                                <Users style={{ width: '24px', height: '24px' }} />
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-4">{project.title}</h1>
+                            <h3 style={{ fontSize: '20px', fontWeight: 'bold', margin: 0 }}>Join the Team</h3>
                         </div>
 
-                        <button
-                            onClick={() => {
-                                navigator.clipboard.writeText(window.location.href);
-                                toast.success("Link copied!");
-                            }}
-                            className="p-3 rounded-full bg-white border-2 border-black/10 hover:border-black transition-all"
-                        >
-                            <Share2 className="w-5 h-5" />
-                        </button>
-                    </div>
-                </header>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12">
-
-                    {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-12">
-                        <section>
-                            <h2 className="text-2xl font-bold mb-4">About</h2>
-                            <p className="text-lg leading-relaxed text-muted-foreground whitespace-pre-wrap">
-                                {project.description}
-                            </p>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-bold mb-4">What we need</h2>
-                            <div className="flex flex-wrap gap-2">
-                                {project.needs?.length > 0 ? (
-                                    project.needs.map((need, i) => (
-                                        <span key={i} className="px-4 py-2 bg-white border-2 border-black/5 rounded-xl text-sm font-medium">
-                                            {need}
-                                        </span>
-                                    ))
-                                ) : (
-                                    <p className="text-muted-foreground">No specific needs listed yet.</p>
-                                )}
-                            </div>
-                        </section>
-
-                        <section>
-                            <h2 className="text-2xl font-bold mb-4">Tags</h2>
-                            <div className="flex flex-wrap gap-2">
-                                {project.tags?.map((tag, i) => (
-                                    <div key={i} className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-600">
-                                        <Tag className="w-3 h-3" />
-                                        {tag}
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    </div>
-
-                    {/* Sidebar */}
-                    <div className="space-y-8">
-                        {/* Join Team Card */}
-                        <div className="p-6 md:p-8 bg-white rounded-3xl border-2 border-black/10 shadow-sm">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                                    <Users className="w-6 h-6" />
-                                </div>
-                                <h3 className="text-xl font-bold">Join the Team</h3>
+                        <form onSubmit={handleJoinSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div>
+                                <label style={{
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.1em',
+                                    color: '#999',
+                                    marginBottom: '4px',
+                                    display: 'block'
+                                }}>Name</label>
+                                <input
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        backgroundColor: '#F5F2EB',
+                                        border: '2px solid transparent',
+                                        outline: 'none',
+                                        fontSize: '14px'
+                                    }}
+                                    value={joinForm.name}
+                                    onChange={e => setJoinForm({ ...joinForm, name: e.target.value })}
+                                />
                             </div>
 
-                            <form onSubmit={handleJoinSubmit} className="space-y-4">
-                                <div>
-                                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Name</label>
-                                    <input
-                                        required
-                                        className="w-full p-3 rounded-xl bg-gray-50 border-2 border-transparent focus:border-primary/20 outline-none transition-all"
-                                        value={joinForm.name}
-                                        onChange={e => setJoinForm({ ...joinForm, name: e.target.value })}
-                                    />
-                                </div>
+                            <div>
+                                <label style={{
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.1em',
+                                    color: '#999',
+                                    marginBottom: '4px',
+                                    display: 'block'
+                                }}>Email</label>
+                                <input
+                                    required
+                                    type="email"
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        backgroundColor: '#F5F2EB',
+                                        border: '2px solid transparent',
+                                        outline: 'none',
+                                        fontSize: '14px'
+                                    }}
+                                    value={joinForm.email}
+                                    onChange={e => setJoinForm({ ...joinForm, email: e.target.value })}
+                                />
+                            </div>
 
-                                <div>
-                                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Email</label>
-                                    <input
-                                        required
-                                        type="email"
-                                        className="w-full p-3 rounded-xl bg-gray-50 border-2 border-transparent focus:border-primary/20 outline-none transition-all"
-                                        value={joinForm.email}
-                                        onChange={e => setJoinForm({ ...joinForm, email: e.target.value })}
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Role</label>
-                                    <select
-                                        className="w-full p-3 rounded-xl bg-gray-50 border-2 border-transparent focus:border-primary/20 outline-none transition-all"
-                                        value={joinForm.role}
-                                        onChange={e => setJoinForm({ ...joinForm, role: e.target.value })}
-                                    >
-                                        <option>Developer</option>
-                                        <option>Designer</option>
-                                        <option>Marketer</option>
-                                        <option>Product Manager</option>
-                                        <option>Other</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-1 block">Message</label>
-                                    <textarea
-                                        rows={3}
-                                        className="w-full p-3 rounded-xl bg-gray-50 border-2 border-transparent focus:border-primary/20 outline-none transition-all resize-none"
-                                        placeholder="Why do you want to join?"
-                                        value={joinForm.message}
-                                        onChange={e => setJoinForm({ ...joinForm, message: e.target.value })}
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full py-3 bg-primary text-white rounded-xl font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                            <div>
+                                <label style={{
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.1em',
+                                    color: '#999',
+                                    marginBottom: '4px',
+                                    display: 'block'
+                                }}>Role</label>
+                                <select
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        backgroundColor: '#F5F2EB',
+                                        border: '2px solid transparent',
+                                        outline: 'none',
+                                        fontSize: '14px'
+                                    }}
+                                    value={joinForm.role}
+                                    onChange={e => setJoinForm({ ...joinForm, role: e.target.value })}
                                 >
-                                    {isSubmitting ? "Sending..." : "Send Request"}
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+                                    <option>Developer</option>
+                                    <option>Designer</option>
+                                    <option>Marketer</option>
+                                    <option>Product Manager</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
 
+                            <div>
+                                <label style={{
+                                    fontSize: '11px',
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.1em',
+                                    color: '#999',
+                                    marginBottom: '4px',
+                                    display: 'block'
+                                }}>Message</label>
+                                <textarea
+                                    rows={3}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        backgroundColor: '#F5F2EB',
+                                        border: '2px solid transparent',
+                                        outline: 'none',
+                                        fontSize: '14px',
+                                        resize: 'none'
+                                    }}
+                                    placeholder="Why do you want to join?"
+                                    value={joinForm.message}
+                                    onChange={e => setJoinForm({ ...joinForm, message: e.target.value })}
+                                />
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                style={{
+                                    width: '100%',
+                                    padding: '14px',
+                                    backgroundColor: '#FF4400',
+                                    color: 'white',
+                                    borderRadius: '12px',
+                                    fontWeight: 'bold',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    opacity: isSubmitting ? 0.5 : 1
+                                }}
+                            >
+                                {isSubmitting ? "Sending..." : "Send Request"}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
