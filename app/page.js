@@ -12,6 +12,7 @@ export default function HomePage() {
   const [joinForm, setJoinForm] = useState({ name: "", email: "", role: "Developer", message: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [ogImages, setOgImages] = useState({});
+  const [isMobile, setIsMobile] = useState(false);
 
   // Refs for scroll spy
   const heroRef = useRef(null);
@@ -22,6 +23,14 @@ export default function HomePage() {
   const gtmRef = useRef(null);
   const launchedRef = useRef(null);
   const scrollContainerRef = useRef(null);
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     fetch('/api/projects')
@@ -129,72 +138,74 @@ export default function HomePage() {
       height: '100vh',
       width: '100%',
       backgroundColor: '#F5F2EB',
-      overflow: 'hidden'
+      overflow: isMobile ? 'auto' : 'hidden'
     }}>
-      {/* Left Navigation */}
-      <div style={{
-        width: '160px',
-        minWidth: '160px',
-        padding: '16px',
-        height: '100%',
-        overflowY: 'auto',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
-      }}>
+      {/* Left Navigation - Hidden on mobile */}
+      {!isMobile && (
         <div style={{
-          backgroundColor: 'white',
+          width: '160px',
+          minWidth: '160px',
           padding: '16px',
-          borderRadius: '12px',
-          marginBottom: '8px',
-          border: '1px solid rgba(0,0,0,0.05)'
+          height: '100%',
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
         }}>
-          <h1 style={{ fontWeight: 'bold', fontSize: '18px', letterSpacing: '-0.02em', margin: 0 }}>10K IDEAS</h1>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '16px',
+            borderRadius: '12px',
+            marginBottom: '8px',
+            border: '1px solid rgba(0,0,0,0.05)'
+          }}>
+            <h1 style={{ fontWeight: 'bold', fontSize: '18px', letterSpacing: '-0.02em', margin: 0 }}>10K IDEAS</h1>
+          </div>
+
+          {sections.map((section, idx) => {
+            const isActive = activeSection === section.id;
+            const isLightColor = section.id === 'ideation';
+            return (
+              <button
+                key={section.id}
+                onClick={() => scrollToSection(section.ref)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: 'none',
+                  backgroundColor: section.color,
+                  color: isLightColor ? 'black' : 'white',
+                  height: isActive ? '100px' : '60px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  opacity: isActive ? 1 : 0.85,
+                  transform: isActive ? 'scale(1.02)' : 'scale(1)'
+                }}
+              >
+                <span style={{ fontSize: '10px', fontFamily: 'monospace', opacity: 0.7 }}>
+                  {String(idx).padStart(2, '0')}
+                </span>
+                <span style={{ fontSize: '13px', fontWeight: '600' }}>
+                  {section.label}
+                </span>
+              </button>
+            );
+          })}
         </div>
+      )}
 
-        {sections.map((section, idx) => {
-          const isActive = activeSection === section.id;
-          const isLightColor = section.id === 'ideation';
-          return (
-            <button
-              key={section.id}
-              onClick={() => scrollToSection(section.ref)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                padding: '12px',
-                borderRadius: '12px',
-                border: 'none',
-                backgroundColor: section.color,
-                color: isLightColor ? 'black' : 'white',
-                height: isActive ? '100px' : '60px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                opacity: isActive ? 1 : 0.85,
-                transform: isActive ? 'scale(1.02)' : 'scale(1)'
-              }}
-            >
-              <span style={{ fontSize: '10px', fontFamily: 'monospace', opacity: 0.7 }}>
-                {String(idx).padStart(2, '0')}
-              </span>
-              <span style={{ fontSize: '13px', fontWeight: '600' }}>
-                {section.label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Right Content */}
+      {/* Content - Full width on mobile */}
       <div
         ref={scrollContainerRef}
         style={{
           flex: 1,
-          height: '100%',
-          overflowY: 'auto',
-          padding: '8px'
+          height: isMobile ? 'auto' : '100%',
+          overflowY: isMobile ? 'visible' : 'auto',
+          padding: isMobile ? '16px' : '8px'
         }}
       >
         {/* HERO SECTION */}
