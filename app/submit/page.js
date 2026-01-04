@@ -36,7 +36,7 @@ export default function SubmitIdea() {
         skills: "",
         author: ""
       });
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
@@ -50,7 +50,7 @@ export default function SubmitIdea() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
         </Link>
-        
+
         <div className="bg-white rounded-3xl border-2 border-black/10 p-8 md:p-12">
           <div className="flex items-center gap-4 mb-8">
             <div className="p-3 bg-yellow-100 rounded-xl text-yellow-600">

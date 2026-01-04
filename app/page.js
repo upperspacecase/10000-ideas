@@ -6,8 +6,8 @@ import { ArrowRight, Lightbulb, AlertCircle } from "lucide-react";
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
-  const [backlogIdeas, setBacklogIdeas] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [backlogIdeas, setBacklogIdeas] = useState([]); // Unused for now
+  // const [isLoading, setIsLoading] = useState(true); // Unused for now
 
   const launchRef = useRef(null);
   const ideationRef = useRef(null);
@@ -25,19 +25,21 @@ export default function HomePage() {
       .then(data => {
         // Ensure data is an array
         setProjects(Array.isArray(data) ? data : []);
-        setIsLoading(false);
+        // setIsLoading(false);
       })
       .catch(err => {
         console.error('Error fetching projects:', err);
         setProjects([]);
-        setIsLoading(false);
+        // setIsLoading(false);
       });
 
-    // Fetch backlog
+    // Fetch backlog (commented out as unused)
+    /*
     fetch('/api/backlog')
       .then(res => res.json())
       .then(data => setBacklogIdeas(Array.isArray(data) ? data : []))
       .catch(err => console.error('Error fetching backlog:', err));
+    */
   }, []);
 
   useEffect(() => {

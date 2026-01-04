@@ -53,7 +53,7 @@ export default function ProjectDetail() {
 
             toast.success("Request sent! The team will reach out.");
             setJoinForm({ name: "", email: "", role: "Developer", message: "" });
-        } catch (error) {
+        } catch {
             toast.error("Something went wrong. Please try again.");
         } finally {
             setIsSubmitting(false);

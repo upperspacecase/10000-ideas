@@ -32,7 +32,7 @@ export default function SubmitProblem() {
         problem: "",
         jobToBeDone: ""
       });
-    } catch (error) {
+    } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
@@ -46,7 +46,7 @@ export default function SubmitProblem() {
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Home
         </Link>
-        
+
         <div className="bg-white rounded-3xl border-2 border-black/10 p-8 md:p-12">
           <div className="flex items-center gap-4 mb-8">
             <div className="p-3 bg-red-100 rounded-xl text-red-600">
@@ -54,7 +54,7 @@ export default function SubmitProblem() {
             </div>
             <div>
               <h1 className="text-3xl font-bold">Submit a Problem</h1>
-              <p className="text-muted-foreground">Tell us what's broken so we can fix it.</p>
+              <p className="text-muted-foreground">Tell us what&apos;s broken so we can fix it.</p>
             </div>
           </div>
 

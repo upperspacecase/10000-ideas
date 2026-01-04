@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { supabaseBrowser } from "@/libs/supabase-browser";
 import { Check, AlertCircle, Database } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -25,7 +26,7 @@ export default function SetupPage() {
             // So this page serves as a DIAGNOSTIC tool mostly, unless you enable the 'exec_sql' function.
 
             // Let's check if we can connect first.
-            const { data, error } = await supabaseBrowser.from('projects').select('count').limit(1);
+            const { error } = await supabaseBrowser.from('projects').select('count').limit(1);
 
             if (error) {
                 if (error.code === "42P01") { // Relation 'projects' does not exist
@@ -139,7 +140,7 @@ INSERT INTO projects (title, description, phase, tags) VALUES ('Welcome to 10,00
                     <div className="p-4 bg-green-50 text-green-700 rounded-xl font-bold flex items-center gap-2">
                         <Check className="w-5 h-5" />
                         Database is ready! You can go to the homepage.
-                        <a href="/" className="ml-4 underline">Go Home</a>
+                        <Link href="/" className="ml-4 underline">Go Home</Link>
                     </div>
                 )}
             </div>
