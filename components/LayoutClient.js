@@ -9,6 +9,7 @@ import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "react-hot-toast";
 import { Tooltip } from "react-tooltip";
 import config from "@/config";
+import Sidebar from "@/components/layout/Sidebar";
 
 // Crisp customer chat support:
 // This component is separated from ClientLayout because it needs to be wrapped with <SessionProvider> to use useSession() hook
@@ -59,7 +60,16 @@ const ClientLayout = ({ children }) => {
         <NextTopLoader color={config.colors.main} showSpinner={false} />
 
         {/* Content inside app/page.js files  */}
-        {children}
+        <div className="flex min-h-screen">
+          <div className="hidden md:block w-64 flex-shrink-0">
+            {/* Sidebar Placeholder Space */}
+          </div>
+          <Sidebar />
+
+          <div className="flex-1 w-full md:max-w-[calc(100vw-256px)]">
+            {children}
+          </div>
+        </div>
 
         {/* Show Success/Error messages anywhere from the app with toast() */}
         <Toaster
