@@ -37,6 +37,7 @@ export async function POST(request) {
             .insert({
                 title: body.title,
                 description: body.description,
+                url: body.url || null,
                 phase: body.phase || 'Ideation',
                 tags: body.tags || [],
                 needs: body.needs || [],
