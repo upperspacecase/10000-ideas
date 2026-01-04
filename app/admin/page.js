@@ -402,7 +402,7 @@ export default function AdminPage() {
                     {isLoading ? (
                         <div style={{ padding: '48px', textAlign: 'center' }}>Loading...</div>
                     ) : projects.length === 0 ? (
-                        <div style={{ padding: '48px', textAlign: 'center', color: '#666' }}>No projects yet. Click "Add Project" to create one.</div>
+                        <div style={{ padding: '48px', textAlign: 'center', color: '#666' }}>No projects yet. Click &quot;Add Project&quot; to create one.</div>
                     ) : (
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
