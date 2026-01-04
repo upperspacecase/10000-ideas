@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { ArrowRight, ArrowUpRight, ChevronDown, Users, Tag } from "lucide-react";
+import { ArrowRight, ChevronDown, Users, Tag } from "lucide-react";
 import { toast } from "react-hot-toast";
+
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);

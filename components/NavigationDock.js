@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/libs/utils";
 
 export default function NavigationDock({ activeSection, onSectionChange }) {
     const items = [
