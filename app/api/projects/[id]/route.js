@@ -57,3 +57,26 @@ export async function PATCH(request, { params }) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
+
+export async function DELETE(request, { params }) {
+    try {
+        if (!supabase) {
+            return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+        }
+
+        const { error } = await supabase
+            .from('projects')
+            .delete()
+            .eq('id', params.id);
+
+        if (error) {
+            console.error('Error deleting project:', error);
+            return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
