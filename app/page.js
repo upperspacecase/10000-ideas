@@ -216,36 +216,11 @@ export default function HomePage() {
                 lineHeight: '0.85',
                 margin: 0,
                 letterSpacing: '-0.03em',
-                color: '#000',
-                animation: 'drawIn 1.5s ease-out forwards',
-                background: 'linear-gradient(90deg, #000 50%, transparent 50%)',
-                backgroundSize: '200% 100%',
-                backgroundPosition: 'right',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                animationDelay: '0.3s'
+                color: '#000'
               }}>
-                <span style={{
-                  display: 'inline-block',
-                  animation: 'slideUp 0.8s ease-out forwards',
-                  opacity: 0,
-                  transform: 'translateY(100%)',
-                  animationDelay: '0.2s'
-                }}>1</span>
-                <span style={{
-                  display: 'inline-block',
-                  animation: 'slideUp 0.8s ease-out forwards',
-                  opacity: 0,
-                  transform: 'translateY(100%)',
-                  animationDelay: '0.35s'
-                }}>0</span>
-                <span style={{
-                  display: 'inline-block',
-                  animation: 'slideUp 0.8s ease-out forwards',
-                  opacity: 0,
-                  transform: 'translateY(100%)',
-                  animationDelay: '0.5s'
-                }}>K</span>
+                <span className="animate-char char-1">1</span>
+                <span className="animate-char char-2">0</span>
+                <span className="animate-char char-3">K</span>
               </h1>
             </div>
 
