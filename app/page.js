@@ -209,16 +209,43 @@ export default function HomePage() {
               <span style={{ fontSize: '14px', fontWeight: '400', opacity: 0.5 }}>10,000<br />Ideas</span>
               <span style={{ fontSize: '14px', fontWeight: '400', opacity: 0.5, textAlign: 'right' }}>An Open-Source<br />Venture Studio</span>
             </div>
-            <div style={{ marginTop: '40px', marginBottom: '40px' }}>
+            <div style={{ marginTop: '40px', marginBottom: '40px', overflow: 'hidden' }}>
               <h1 style={{
                 fontSize: isMobile ? 'clamp(60px, 20vw, 120px)' : 'clamp(80px, 15vw, 200px)',
                 fontWeight: '400',
                 lineHeight: '0.85',
                 margin: 0,
                 letterSpacing: '-0.03em',
-                color: '#000'
+                color: '#000',
+                animation: 'drawIn 1.5s ease-out forwards',
+                background: 'linear-gradient(90deg, #000 50%, transparent 50%)',
+                backgroundSize: '200% 100%',
+                backgroundPosition: 'right',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                animationDelay: '0.3s'
               }}>
-                10K
+                <span style={{
+                  display: 'inline-block',
+                  animation: 'slideUp 0.8s ease-out forwards',
+                  opacity: 0,
+                  transform: 'translateY(100%)',
+                  animationDelay: '0.2s'
+                }}>1</span>
+                <span style={{
+                  display: 'inline-block',
+                  animation: 'slideUp 0.8s ease-out forwards',
+                  opacity: 0,
+                  transform: 'translateY(100%)',
+                  animationDelay: '0.35s'
+                }}>0</span>
+                <span style={{
+                  display: 'inline-block',
+                  animation: 'slideUp 0.8s ease-out forwards',
+                  opacity: 0,
+                  transform: 'translateY(100%)',
+                  animationDelay: '0.5s'
+                }}>K</span>
               </h1>
             </div>
 
@@ -281,30 +308,34 @@ export default function HomePage() {
             backgroundColor: '#FF4400',
             borderRadius: '32px',
             padding: isMobile ? '32px' : '48px',
+            minHeight: isMobile ? 'auto' : '200px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
             color: 'white'
           }}>
-            <h2 style={{ fontSize: isMobile ? '28px' : '42px', fontWeight: '400', lineHeight: '1.2', marginBottom: '32px' }}>
-              A project a day. That&apos;s the bet.
-            </h2>
-            <div style={{ fontSize: isMobile ? '16px' : '18px', lineHeight: '1.7', opacity: 0.9, maxWidth: '800px' }}>
-              <p style={{ marginBottom: '24px' }}>
-                We used to think building things took months. Funding rounds, roadmaps, sprints. Now you can ship something real before lunch.
-              </p>
-              <p style={{ marginBottom: '24px' }}>
-                So that&apos;s what we&apos;re doing. One idea, one day, out the door. Most will fail. Some won&apos;t. We&apos;ll find out fast.
-              </p>
-              <p style={{ marginBottom: '24px' }}>
-                The old way was to plan forever then build. We build to find out what we&apos;re even making. Cardboard prototypes. Ugly first versions. Real users telling us where it hurts.
-              </p>
-              <p style={{ marginBottom: '24px' }}>
-                We&apos;re not precious about it. Kill the ones that don&apos;t work. Double down on the ones that do.
-              </p>
-              <p style={{ marginBottom: '24px' }}>
-                Everything&apos;s open. The wins, the flops, the numbers. You can build with us or just watch. Either way, no secrets.
-              </p>
-              <p style={{ marginBottom: 0, fontWeight: '600' }}>
-                We live in a world now where you can just do stuff. So we are.
-              </p>
+            <span style={{ fontSize: '32px', fontWeight: '300' }}>00</span>
+            <div>
+              <h2 style={{
+                fontSize: isMobile ? 'clamp(40px, 10vw, 80px)' : 'clamp(60px, 8vw, 100px)',
+                fontWeight: '300',
+                lineHeight: '0.9',
+                margin: 0,
+                marginBottom: '32px'
+              }}>
+                Manifesto
+              </h2>
+              <div style={{ fontSize: isMobile ? '16px' : '20px', lineHeight: '1.6', opacity: 0.95, maxWidth: '700px' }}>
+                <p style={{ marginBottom: '20px', fontWeight: '500', fontSize: isMobile ? '20px' : '26px' }}>
+                  We live in a world now where you can just do stuff. So we are.
+                </p>
+                <p style={{ marginBottom: '20px' }}>
+                  10K is an open-source venture studio launching one new project every day. We build as a forcing function for creativity.
+                </p>
+                <p style={{ marginBottom: 0, fontWeight: '600' }}>
+                  Join a team, submit an idea, or just watch us build.
+                </p>
+              </div>
             </div>
           </div>
         </div>

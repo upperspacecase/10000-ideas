@@ -51,3 +51,27 @@ body {
     opacity: 0.3;
   }
 }
+
+/* SlideUp animation for title reveal */
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* DrawIn animation for text color reveal */
+@keyframes drawIn {
+  0% {
+    background-position: right;
+  }
+
+  100% {
+    background-position: left;
+  }
+}
