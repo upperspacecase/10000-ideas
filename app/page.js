@@ -226,7 +226,13 @@ export default function HomePage() {
               {/* Today's Launch Banner */}
               {projects.find(p => p.is_todays_launch) && (
                 <div
-                  onClick={() => setExpandedProject(projects.find(p => p.is_todays_launch)?.id)}
+                  onClick={() => {
+                    const todaysProject = projects.find(p => p.is_todays_launch);
+                    if (todaysProject) {
+                      scrollToSection(launchedRef);
+                      setTimeout(() => setExpandedProject(todaysProject.id), 300);
+                    }
+                  }}
                   style={{
                     marginTop: '32px',
                     backgroundColor: '#000000',
