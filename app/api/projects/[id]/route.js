@@ -36,12 +36,19 @@ export async function PATCH(request, { params }) {
 
         const body = await request.json();
 
+        // Build update object with only provided fields
+        const updateData = {};
+        if (body.title !== undefined) updateData.title = body.title;
+        if (body.description !== undefined) updateData.description = body.description;
+        if (body.url !== undefined) updateData.url = body.url;
+        if (body.phase !== undefined) updateData.phase = body.phase;
+        if (body.tags !== undefined) updateData.tags = body.tags;
+        if (body.needs !== undefined) updateData.needs = body.needs;
+        if (body.is_todays_launch !== undefined) updateData.is_todays_launch = body.is_todays_launch;
+
         const { data: project, error } = await supabase
             .from('projects')
-            .update({
-                phase: body.phase,
-                ...(body.is_todays_launch !== undefined && { is_todays_launch: body.is_todays_launch })
-            })
+            .update(updateData)
             .eq('id', params.id)
             .select()
             .single();
