@@ -193,88 +193,124 @@ export default function HomePage() {
           padding: isMobile ? '16px' : '8px'
         }}
       >
-        {/* HERO SECTION - Black & White */}
+        {/* HERO SECTION */}
         <div ref={heroRef} style={{ marginBottom: '16px' }}>
           <div style={{
-            backgroundColor: '#F5F2EB',
+            backgroundColor: '#F5F0E8',
             borderRadius: '32px',
-            padding: isMobile ? '32px' : '48px',
+            padding: isMobile ? '24px' : '0',
             minHeight: isMobile ? 'auto' : '450px',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            border: '1px solid rgba(0,0,0,0.05)'
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: 'center',
+            overflow: 'hidden'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '14px', fontWeight: '400', opacity: 0.5 }}>10,000<br />Ideas</span>
-              <span style={{ fontSize: '14px', fontWeight: '400', opacity: 0.5, textAlign: 'right' }}>An Open-Source<br />Venture Studio</span>
-            </div>
-            <div style={{ marginTop: '40px', marginBottom: '40px', overflow: 'hidden' }}>
-              <h1 style={{
-                fontSize: isMobile ? 'clamp(60px, 20vw, 120px)' : 'clamp(80px, 15vw, 200px)',
-                fontWeight: '400',
-                lineHeight: '0.85',
-                margin: 0,
-                letterSpacing: '-0.03em',
-                color: '#000'
-              }}>
-                <span className="animate-char char-1">1</span>
-                <span className="animate-char char-2">0</span>
-                <span className="animate-char char-3">K</span>
-              </h1>
+            {/* Dragon Image */}
+            <div style={{
+              flex: isMobile ? 'none' : '1',
+              width: isMobile ? '100%' : '50%',
+              height: isMobile ? '250px' : '450px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <img
+                src="/dragon-hero.png"
+                alt="Dragon and Mouse"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain'
+                }}
+              />
             </div>
 
-            {/* Today's Launch Banner */}
-            {projects.find(p => p.is_todays_launch) && (
-              <div
-                onClick={() => {
-                  const todaysProject = projects.find(p => p.is_todays_launch);
-                  if (todaysProject) {
-                    scrollToSection(launchedRef);
-                    setTimeout(() => setExpandedProject(todaysProject.id), 300);
-                  }
-                }}
-                style={{
-                  backgroundColor: '#000000',
-                  borderRadius: '20px',
-                  padding: '20px 28px',
+            {/* 10K Text */}
+            <div style={{
+              flex: isMobile ? 'none' : '1',
+              width: isMobile ? '100%' : '50%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: isMobile ? 'center' : 'flex-end',
+              padding: isMobile ? '24px 0' : '48px',
+              textAlign: isMobile ? 'center' : 'right'
+            }}>
+              <div style={{ overflow: 'hidden' }}>
+                <h1 style={{
+                  fontSize: isMobile ? 'clamp(80px, 25vw, 140px)' : 'clamp(120px, 18vw, 220px)',
+                  fontWeight: '400',
+                  lineHeight: '0.85',
+                  margin: 0,
+                  letterSpacing: '-0.03em',
+                  color: '#000'
+                }}>
+                  <span className="animate-char char-1">1</span>
+                  <span className="animate-char char-2">0</span>
+                  <span className="animate-char char-3">K</span>
+                </h1>
+              </div>
+              <p style={{
+                fontSize: '14px',
+                opacity: 0.5,
+                marginTop: '16px'
+              }}>
+                An Open-Source Venture Studio
+              </p>
+            </div>
+          </div>
+
+          {/* Today's Launch Banner */}
+          {projects.find(p => p.is_todays_launch) && (
+            <div
+              onClick={() => {
+                const todaysProject = projects.find(p => p.is_todays_launch);
+                if (todaysProject) {
+                  scrollToSection(launchedRef);
+                  setTimeout(() => setExpandedProject(todaysProject.id), 300);
+                }
+              }}
+              style={{
+                marginTop: '12px',
+                backgroundColor: '#000000',
+                borderRadius: '20px',
+                padding: '20px 28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                color: 'white'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{
+                  padding: '6px 12px',
+                  backgroundColor: '#00FF00',
+                  borderRadius: '8px',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  letterSpacing: '0.1em',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between',
-                  cursor: 'pointer',
-                  color: 'white'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{
-                    padding: '6px 12px',
-                    backgroundColor: '#00FF00',
-                    borderRadius: '8px',
-                    fontSize: '11px',
-                    fontWeight: '700',
-                    letterSpacing: '0.1em',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    color: 'black'
-                  }}>
-                    <span style={{
-                      width: '6px',
-                      height: '6px',
-                      backgroundColor: 'black',
-                      borderRadius: '50%',
-                      animation: 'pulse 1.5s infinite'
-                    }} />
-                    LIVE NOW
-                  </div>
-                  <span style={{ fontSize: '18px', fontWeight: '500' }}>
-                    {projects.find(p => p.is_todays_launch)?.title}
-                  </span>
+                  gap: '6px',
+                  color: 'black'
+                }}>
+                  <span style={{
+                    width: '6px',
+                    height: '6px',
+                    backgroundColor: 'black',
+                    borderRadius: '50%',
+                    animation: 'pulse 1.5s infinite'
+                  }} />
+                  LIVE NOW
                 </div>
-                <ArrowRight style={{ width: '20px', height: '20px' }} />
+                <span style={{ fontSize: '18px', fontWeight: '500' }}>
+                  {projects.find(p => p.is_todays_launch)?.title}
+                </span>
               </div>
-            )}
-          </div>
+              <ArrowRight style={{ width: '20px', height: '20px' }} />
+            </div>
+          )}
         </div>
 
         {/* MANIFESTO SECTION - Orange */}
