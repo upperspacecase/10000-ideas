@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ChevronDown, Calendar, Users, DollarSign, AlertCircle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 /**
- * ProjectCard Component - Accordion with Infographic Layout
+ * ProjectCard Component - Clean, minimal pricing-card style
  */
 export default function ProjectCard({ project, index = 0, defaultExpanded = false }) {
     const [isExpanded, setIsExpanded] = useState(defaultExpanded);
@@ -39,282 +39,141 @@ export default function ProjectCard({ project, index = 0, defaultExpanded = fals
     const blocker = project.blocker || null;
     const ownerName = project.owner_name || 'Tay';
 
+    // Row component for clean layout
+    const Row = ({ label, value, bold = false }) => (
+        <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            padding: '12px 0',
+            borderBottom: '1px solid rgba(0,0,0,0.06)'
+        }}>
+            <span style={{ fontSize: '15px', color: '#666' }}>{label}</span>
+            <span style={{
+                fontSize: bold ? '18px' : '15px',
+                fontWeight: bold ? '600' : '500',
+                color: '#000'
+            }}>
+                {value}
+            </span>
+        </div>
+    );
+
     return (
         <div
             style={{
-                backgroundColor: '#000000',
-                borderRadius: '28px',
+                backgroundColor: '#FAF9F7',
+                borderRadius: '20px',
                 overflow: 'hidden',
-                color: 'white',
             }}
         >
-            {/* COLLAPSED HEADER - Always Visible */}
+            {/* HEADER - Always Visible */}
             <div
                 onClick={() => setIsExpanded(!isExpanded)}
                 style={{
-                    padding: '24px 32px',
+                    padding: '28px 32px',
                     cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    transition: 'background 0.2s ease',
                 }}
             >
-                {/* Left: Index + Title + Description */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, minWidth: 0 }}>
-                    <span style={{
-                        fontSize: '14px',
-                        opacity: 0.3,
-                        fontFamily: 'monospace',
-                        fontWeight: '500'
-                    }}>
-                        {formattedIndex}
-                    </span>
-                    <div style={{ minWidth: 0 }}>
+                {/* Title Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                    <div>
                         <h3 style={{
-                            fontSize: '22px',
-                            fontWeight: '500',
+                            fontSize: '28px',
+                            fontWeight: '600',
                             margin: 0,
-                            letterSpacing: '-0.01em'
+                            color: '#000',
+                            letterSpacing: '-0.02em'
                         }}>
                             {project.title}
                         </h3>
                         <p style={{
                             fontSize: '14px',
-                            opacity: 0.5,
-                            margin: '4px 0 0 0',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '400px'
+                            color: '#888',
+                            margin: '6px 0 0 0',
+                            maxWidth: '300px'
                         }}>
                             {project.description}
                         </p>
                     </div>
-                </div>
-
-                {/* Right: Status + Chevron */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        backgroundColor: 'rgba(255,204,0,0.12)',
-                        padding: '6px 14px',
-                        borderRadius: '20px'
-                    }}>
-                        <span
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '6px 12px',
+                            backgroundColor: 'rgba(0,0,0,0.05)',
+                            borderRadius: '16px'
+                        }}>
+                            <span
+                                style={{
+                                    width: '6px',
+                                    height: '6px',
+                                    borderRadius: '50%',
+                                    backgroundColor: currentStatus.color,
+                                }}
+                            />
+                            <span style={{ fontSize: '12px', fontWeight: '500', color: '#666' }}>
+                                {currentStatus.label}
+                            </span>
+                        </div>
+                        <ChevronDown
                             style={{
-                                width: '8px',
-                                height: '8px',
-                                borderRadius: '50%',
-                                backgroundColor: currentStatus.color,
-                                animation: status === 'live' ? 'pulse 1.5s infinite' : 'none',
+                                width: '18px',
+                                height: '18px',
+                                color: '#999',
+                                transition: 'transform 0.2s ease',
+                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
                             }}
                         />
-                        <span style={{
-                            fontSize: '12px',
-                            color: currentStatus.color,
-                            fontWeight: '600'
-                        }}>
-                            {currentStatus.label}
-                        </span>
                     </div>
+                </div>
 
-                    {project.url && (
-                        <a
-                            href={project.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                                padding: '10px 20px',
-                                backgroundColor: '#FFCC00',
-                                color: 'black',
-                                borderRadius: '20px',
-                                textDecoration: 'none',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                            }}
-                        >
-                            Visit →
-                        </a>
-                    )}
-
-                    <ChevronDown
-                        style={{
-                            width: '20px',
-                            height: '20px',
-                            opacity: 0.5,
-                            transition: 'transform 0.3s ease',
-                            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
-                        }}
-                    />
+                {/* Key Metrics - Always visible */}
+                <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)' }}>
+                    <Row label="MRR" value={mrr} bold />
+                    <Row label={metric1Label} value={metric1Value} bold />
+                    <Row label={metric2Label} value={metric2Value} bold />
                 </div>
             </div>
 
             {/* EXPANDED CONTENT */}
             <div
                 style={{
-                    maxHeight: isExpanded ? '800px' : '0',
+                    maxHeight: isExpanded ? '600px' : '0',
                     overflow: 'hidden',
-                    transition: 'max-height 0.4s ease',
+                    transition: 'max-height 0.3s ease',
                 }}
             >
-                <div style={{ padding: '0 32px 36px 32px' }}>
+                <div style={{ padding: '0 32px 28px 32px' }}>
 
-                    {/* Divider */}
-                    <div style={{
-                        height: '1px',
-                        backgroundColor: 'rgba(255,255,255,0.08)',
-                        marginBottom: '32px'
-                    }} />
-
-                    {/* METRICS GRID - Visual Hero */}
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(3, 1fr)',
-                        gap: '16px',
-                        marginBottom: '32px'
+                    {/* Project Info Section */}
+                    <p style={{
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#999',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        marginBottom: '8px',
+                        marginTop: '8px'
                     }}>
-                        {/* MRR */}
-                        <div style={{
-                            backgroundColor: 'rgba(255,255,255,0.04)',
-                            borderRadius: '20px',
-                            padding: '24px',
-                            textAlign: 'center'
-                        }}>
-                            <p style={{
-                                fontSize: '32px',
-                                fontWeight: '300',
-                                margin: 0,
-                                letterSpacing: '-0.02em',
-                                color: '#FFCC00'
-                            }}>
-                                {mrr}
-                            </p>
-                            <p style={{
-                                fontSize: '11px',
-                                opacity: 0.4,
-                                margin: '8px 0 0 0',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.1em'
-                            }}>
-                                MRR
-                            </p>
-                        </div>
+                        Project Info
+                    </p>
 
-                        {/* Metric 2 */}
-                        <div style={{
-                            backgroundColor: 'rgba(255,255,255,0.04)',
-                            borderRadius: '20px',
-                            padding: '24px',
-                            textAlign: 'center'
-                        }}>
-                            <p style={{
-                                fontSize: '32px',
-                                fontWeight: '300',
-                                margin: 0,
-                                letterSpacing: '-0.02em'
-                            }}>
-                                {metric1Value}
-                            </p>
-                            <p style={{
-                                fontSize: '11px',
-                                opacity: 0.4,
-                                margin: '8px 0 0 0',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.1em'
-                            }}>
-                                {metric1Label}
-                            </p>
-                        </div>
+                    <Row label="Launched" value={launchedDate} />
+                    <Row label="Audience" value={audience} />
+                    <Row label="Model" value={model} />
+                    <Row label="Owner" value={ownerName} />
 
-                        {/* Metric 3 */}
-                        <div style={{
-                            backgroundColor: 'rgba(255,255,255,0.04)',
-                            borderRadius: '20px',
-                            padding: '24px',
-                            textAlign: 'center'
-                        }}>
-                            <p style={{
-                                fontSize: '32px',
-                                fontWeight: '300',
-                                margin: 0,
-                                letterSpacing: '-0.02em'
-                            }}>
-                                {metric2Value}
-                            </p>
-                            <p style={{
-                                fontSize: '11px',
-                                opacity: 0.4,
-                                margin: '8px 0 0 0',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.1em'
-                            }}>
-                                {metric2Label}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* CONTEXT BAR - Horizontal Pills */}
-                    <div style={{
-                        display: 'flex',
-                        gap: '12px',
-                        marginBottom: '28px',
-                        flexWrap: 'wrap'
-                    }}>
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '10px 16px',
-                            backgroundColor: 'rgba(255,255,255,0.06)',
-                            borderRadius: '12px',
-                            fontSize: '13px'
-                        }}>
-                            <Calendar style={{ width: '14px', height: '14px', opacity: 0.5 }} />
-                            <span style={{ opacity: 0.5 }}>Launched</span>
-                            <span style={{ fontWeight: '500' }}>{launchedDate}</span>
-                        </div>
-
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '10px 16px',
-                            backgroundColor: 'rgba(255,255,255,0.06)',
-                            borderRadius: '12px',
-                            fontSize: '13px'
-                        }}>
-                            <Users style={{ width: '14px', height: '14px', opacity: 0.5 }} />
-                            <span style={{ opacity: 0.5 }}>Audience</span>
-                            <span style={{ fontWeight: '500' }}>{audience}</span>
-                        </div>
-
-                        <div style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            padding: '10px 16px',
-                            backgroundColor: 'rgba(255,255,255,0.06)',
-                            borderRadius: '12px',
-                            fontSize: '13px'
-                        }}>
-                            <DollarSign style={{ width: '14px', height: '14px', opacity: 0.5 }} />
-                            <span style={{ opacity: 0.5 }}>Model</span>
-                            <span style={{ fontWeight: '500' }}>{model}</span>
-                        </div>
-                    </div>
-
-                    {/* WANTS & NEEDS */}
+                    {/* Wants & Needs */}
                     {wantsNeeds.length > 0 && (
-                        <div style={{ marginBottom: '24px' }}>
+                        <div style={{ paddingTop: '20px' }}>
                             <p style={{
-                                fontSize: '11px',
-                                opacity: 0.35,
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                color: '#999',
                                 textTransform: 'uppercase',
-                                letterSpacing: '0.1em',
+                                letterSpacing: '0.05em',
                                 marginBottom: '12px'
                             }}>
                                 Wants & Needs
@@ -324,13 +183,12 @@ export default function ProjectCard({ project, index = 0, defaultExpanded = fals
                                     <span
                                         key={i}
                                         style={{
-                                            padding: '8px 16px',
-                                            backgroundColor: 'rgba(255,204,0,0.1)',
-                                            border: '1px solid rgba(255,204,0,0.2)',
-                                            borderRadius: '20px',
+                                            padding: '8px 14px',
+                                            backgroundColor: 'rgba(0,0,0,0.05)',
+                                            borderRadius: '16px',
                                             fontSize: '13px',
                                             fontWeight: '500',
-                                            color: '#FFCC00'
+                                            color: '#333'
                                         }}
                                     >
                                         {need}
@@ -340,57 +198,50 @@ export default function ProjectCard({ project, index = 0, defaultExpanded = fals
                         </div>
                     )}
 
-                    {/* BLOCKER - Warning Style */}
+                    {/* Blocker */}
                     {blocker && blocker !== '—' && (
                         <div style={{
-                            backgroundColor: 'rgba(239,68,68,0.1)',
-                            border: '1px solid rgba(239,68,68,0.2)',
-                            borderRadius: '16px',
-                            padding: '16px 20px',
-                            marginBottom: '24px',
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: '12px'
+                            marginTop: '20px',
+                            padding: '16px',
+                            backgroundColor: 'rgba(239,68,68,0.08)',
+                            borderRadius: '12px'
                         }}>
-                            <AlertCircle style={{
-                                width: '18px',
-                                height: '18px',
+                            <p style={{
+                                fontSize: '12px',
+                                fontWeight: '600',
                                 color: '#EF4444',
-                                flexShrink: 0,
-                                marginTop: '2px'
-                            }} />
-                            <div>
-                                <p style={{
-                                    fontSize: '11px',
-                                    color: '#EF4444',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.1em',
-                                    marginBottom: '4px',
-                                    fontWeight: '600'
-                                }}>
-                                    Blocker
-                                </p>
-                                <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5' }}>{blocker}</p>
-                            </div>
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                marginBottom: '4px'
+                            }}>
+                                Blocker
+                            </p>
+                            <p style={{ margin: 0, fontSize: '14px', color: '#333' }}>{blocker}</p>
                         </div>
                     )}
 
-                    {/* FOOTER - Owner */}
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        paddingTop: '8px'
-                    }}>
-                        <div style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(255,255,255,0.1)',
-                            border: '2px solid rgba(255,255,255,0.1)'
-                        }} />
-                        <span style={{ fontSize: '14px', opacity: 0.5 }}>{ownerName}</span>
-                    </div>
+                    {/* CTA */}
+                    {project.url && (
+                        <a
+                            href={project.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                                display: 'block',
+                                marginTop: '24px',
+                                padding: '14px 24px',
+                                backgroundColor: '#000',
+                                color: 'white',
+                                borderRadius: '12px',
+                                textDecoration: 'none',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                textAlign: 'center'
+                            }}
+                        >
+                            Visit Project →
+                        </a>
+                    )}
                 </div>
             </div>
         </div>
