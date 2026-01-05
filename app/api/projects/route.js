@@ -46,7 +46,20 @@ export async function POST(request) {
             url: body.url || null,
             phase: body.phase || 'Ideation',
             tags: body.tags || [],
-            needs: body.needs || []
+            needs: body.needs || [],
+            // New fields
+            status: body.status || 'building',
+            launched_date: body.launched_date || null,
+            audience: body.audience || null,
+            model: body.model || null,
+            mrr: body.mrr || '€0',
+            metric1_value: body.metric1_value || null,
+            metric1_label: body.metric1_label || 'users',
+            metric2_value: body.metric2_value || null,
+            metric2_label: body.metric2_label || 'visits/mo',
+            wants_needs: body.wants_needs || [],
+            blocker: body.blocker || null,
+            owner_name: body.owner_name || 'Tay'
         };
 
         console.log('Insert data:', JSON.stringify(insertData, null, 2));

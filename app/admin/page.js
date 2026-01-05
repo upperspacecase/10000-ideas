@@ -33,7 +33,20 @@ export default function AdminPage() {
         url: "",
         phase: "Ideation",
         tags: "",
-        needs: ""
+        needs: "",
+        // New fields
+        status: "building",
+        launched_date: "",
+        audience: "",
+        model: "",
+        mrr: "€0",
+        metric1_value: "",
+        metric1_label: "users",
+        metric2_value: "",
+        metric2_label: "visits/mo",
+        wants_needs: "",
+        blocker: "",
+        owner_name: "Tay"
     });
 
     const fetchProjects = async () => {
@@ -149,7 +162,20 @@ export default function AdminPage() {
                     url: formData.url || null,
                     phase: formData.phase,
                     tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
-                    needs: formData.needs.split(",").map(n => n.trim()).filter(Boolean)
+                    needs: formData.needs.split(",").map(n => n.trim()).filter(Boolean),
+                    // New fields
+                    status: formData.status,
+                    launched_date: formData.launched_date || null,
+                    audience: formData.audience || null,
+                    model: formData.model || null,
+                    mrr: formData.mrr || "€0",
+                    metric1_value: formData.metric1_value || null,
+                    metric1_label: formData.metric1_label || "users",
+                    metric2_value: formData.metric2_value || null,
+                    metric2_label: formData.metric2_label || "visits/mo",
+                    wants_needs: formData.wants_needs.split(",").map(w => w.trim()).filter(Boolean),
+                    blocker: formData.blocker || null,
+                    owner_name: formData.owner_name || "Tay"
                 }),
             });
 
@@ -166,7 +192,12 @@ export default function AdminPage() {
     };
 
     const resetForm = () => {
-        setFormData({ title: "", description: "", url: "", phase: "Ideation", tags: "", needs: "" });
+        setFormData({
+            title: "", description: "", url: "", phase: "Ideation", tags: "", needs: "",
+            status: "building", launched_date: "", audience: "", model: "", mrr: "€0",
+            metric1_value: "", metric1_label: "users", metric2_value: "", metric2_label: "visits/mo",
+            wants_needs: "", blocker: "", owner_name: "Tay"
+        });
         setShowAddForm(false);
         setEditProject(null);
     };
@@ -178,7 +209,20 @@ export default function AdminPage() {
             url: project.url || "",
             phase: project.phase || "Ideation",
             tags: Array.isArray(project.tags) ? project.tags.join(", ") : "",
-            needs: Array.isArray(project.needs) ? project.needs.join(", ") : ""
+            needs: Array.isArray(project.needs) ? project.needs.join(", ") : "",
+            // New fields
+            status: project.status || "building",
+            launched_date: project.launched_date || "",
+            audience: project.audience || "",
+            model: project.model || "",
+            mrr: project.mrr || "€0",
+            metric1_value: project.metric1_value || "",
+            metric1_label: project.metric1_label || "users",
+            metric2_value: project.metric2_value || "",
+            metric2_label: project.metric2_label || "visits/mo",
+            wants_needs: Array.isArray(project.wants_needs) ? project.wants_needs.join(", ") : "",
+            blocker: project.blocker || "",
+            owner_name: project.owner_name || "Tay"
         });
         setEditProject(project);
     };
@@ -279,6 +323,86 @@ export default function AdminPage() {
                                 <div>
                                     <label style={labelStyle}>Needs (comma-separated)</label>
                                     <input type="text" placeholder="Developer, Designer, Marketing" style={inputStyle} value={formData.needs} onChange={(e) => setFormData({ ...formData, needs: e.target.value })} />
+                                </div>
+
+                                {/* Divider */}
+                                <div style={{ borderTop: '1px solid rgba(0,0,0,0.1)', margin: '8px 0', paddingTop: '16px' }}>
+                                    <p style={{ fontSize: '12px', fontWeight: '600', color: '#666', marginBottom: '16px' }}>PROJECT DETAILS</p>
+                                </div>
+
+                                {/* Status & Owner Row */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div>
+                                        <label style={labelStyle}>Status</label>
+                                        <select style={inputStyle} value={formData.status} onChange={(e) => setFormData({ ...formData, status: e.target.value })}>
+                                            <option value="building">Building</option>
+                                            <option value="launching">Launching</option>
+                                            <option value="live">Live</option>
+                                            <option value="paused">Paused</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>Owner Name</label>
+                                        <input type="text" placeholder="Tay" style={inputStyle} value={formData.owner_name} onChange={(e) => setFormData({ ...formData, owner_name: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Launched & Audience Row */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div>
+                                        <label style={labelStyle}>Launched Date</label>
+                                        <input type="text" placeholder="Dec 2024" style={inputStyle} value={formData.launched_date} onChange={(e) => setFormData({ ...formData, launched_date: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>Audience</label>
+                                        <input type="text" placeholder="Expats in Portugal" style={inputStyle} value={formData.audience} onChange={(e) => setFormData({ ...formData, audience: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Model & MRR Row */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div>
+                                        <label style={labelStyle}>Business Model</label>
+                                        <input type="text" placeholder="Listings + Ads" style={inputStyle} value={formData.model} onChange={(e) => setFormData({ ...formData, model: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>MRR</label>
+                                        <input type="text" placeholder="€0" style={inputStyle} value={formData.mrr} onChange={(e) => setFormData({ ...formData, mrr: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Metric 1 */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div>
+                                        <label style={labelStyle}>Metric 1 Value</label>
+                                        <input type="text" placeholder="47" style={inputStyle} value={formData.metric1_value} onChange={(e) => setFormData({ ...formData, metric1_value: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>Metric 1 Label</label>
+                                        <input type="text" placeholder="users" style={inputStyle} value={formData.metric1_label} onChange={(e) => setFormData({ ...formData, metric1_label: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Metric 2 */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                                    <div>
+                                        <label style={labelStyle}>Metric 2 Value</label>
+                                        <input type="text" placeholder="1.2k" style={inputStyle} value={formData.metric2_value} onChange={(e) => setFormData({ ...formData, metric2_value: e.target.value })} />
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>Metric 2 Label</label>
+                                        <input type="text" placeholder="visits/mo" style={inputStyle} value={formData.metric2_label} onChange={(e) => setFormData({ ...formData, metric2_label: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style={labelStyle}>Wants & Needs (comma-separated)</label>
+                                    <input type="text" placeholder="SEO backlinks, Portuguese translator" style={inputStyle} value={formData.wants_needs} onChange={(e) => setFormData({ ...formData, wants_needs: e.target.value })} />
+                                </div>
+
+                                <div>
+                                    <label style={labelStyle}>Blocker</label>
+                                    <input type="text" placeholder="e.g. Waiting on API approval" style={inputStyle} value={formData.blocker} onChange={(e) => setFormData({ ...formData, blocker: e.target.value })} />
                                 </div>
 
                                 <button type="submit" disabled={isSubmitting} style={{ width: '100%', padding: '14px', backgroundColor: '#FF4400', color: 'white', borderRadius: '8px', fontWeight: '600', border: 'none', cursor: 'pointer', marginTop: '8px', opacity: isSubmitting ? 0.5 : 1 }}>

@@ -45,6 +45,19 @@ export async function PATCH(request, { params }) {
         if (body.tags !== undefined) updateData.tags = body.tags;
         if (body.needs !== undefined) updateData.needs = body.needs;
         if (body.is_todays_launch !== undefined) updateData.is_todays_launch = body.is_todays_launch;
+        // New fields
+        if (body.status !== undefined) updateData.status = body.status;
+        if (body.launched_date !== undefined) updateData.launched_date = body.launched_date;
+        if (body.audience !== undefined) updateData.audience = body.audience;
+        if (body.model !== undefined) updateData.model = body.model;
+        if (body.mrr !== undefined) updateData.mrr = body.mrr;
+        if (body.metric1_value !== undefined) updateData.metric1_value = body.metric1_value;
+        if (body.metric1_label !== undefined) updateData.metric1_label = body.metric1_label;
+        if (body.metric2_value !== undefined) updateData.metric2_value = body.metric2_value;
+        if (body.metric2_label !== undefined) updateData.metric2_label = body.metric2_label;
+        if (body.wants_needs !== undefined) updateData.wants_needs = body.wants_needs;
+        if (body.blocker !== undefined) updateData.blocker = body.blocker;
+        if (body.owner_name !== undefined) updateData.owner_name = body.owner_name;
 
         const { data: project, error } = await supabase
             .from('projects')

@@ -1,51 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronDown, Calendar, Users, DollarSign, AlertCircle } from 'lucide-react';
 
 /**
- * ProjectCard Component
- * 
- * Expected project shape (current fields + future fields):
- * {
- *   id: string,
- *   title: string,
- *   description: string,
- *   url: string,
- *   phase: string,
- *   // Future fields (using defaults for now):
- *   index: number,
- *   status: 'live' | 'building' | 'paused',
- *   launched_date: string,
- *   audience: string,
- *   model: string,
- *   mrr: number,
- *   metric1_value: string,
- *   metric1_label: string,
- *   metric2_value: string,
- *   metric2_label: string,
- *   wants_needs: string[],
- *   blocker: string,
- *   owner_name: string,
- *   owner_avatar: string,
- *   color: string,
- * }
+ * ProjectCard Component - Accordion with Infographic Layout
  */
+export default function ProjectCard({ project, index = 0, defaultExpanded = false }) {
+    const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
-// Color palette for cards
-const CARD_COLORS = [
-    '#7C3AED', // Purple
-    '#3B82F6', // Blue
-    '#10B981', // Green
-    '#F59E0B', // Amber
-    '#EF4444', // Red
-    '#EC4899', // Pink
-    '#6366F1', // Indigo
-    '#14B8A6', // Teal
-];
-
-export default function ProjectCard({ project, index = 0 }) {
-    // Derive color from index or use provided color
-    const cardColor = project.color || CARD_COLORS[index % CARD_COLORS.length];
-
-    // Status mapping based on phase
+    // Status based on phase
     const getStatus = () => {
         if (project.status) return project.status;
         if (project.phase === 'Post-Launch') return 'live';
@@ -55,18 +17,16 @@ export default function ProjectCard({ project, index = 0 }) {
 
     const status = getStatus();
     const statusConfig = {
-        live: { color: '#4ADE80', label: 'Live' },
-        launching: { color: '#FACC15', label: 'Launching' },
-        building: { color: '#60A5FA', label: 'Building' },
+        live: { color: '#FFCC00', label: 'Live' },
+        launching: { color: '#FFCC00', label: 'Launching' },
+        building: { color: '#3333FF', label: 'Building' },
         paused: { color: '#9CA3AF', label: 'Paused' },
     };
 
     const currentStatus = statusConfig[status] || statusConfig.building;
-
-    // Format index with leading zero
     const formattedIndex = String(index + 1).padStart(2, '0');
 
-    // Use existing data or placeholders
+    // Data with fallbacks
     const launchedDate = project.launched_date || '—';
     const audience = project.audience || '—';
     const model = project.model || '—';
@@ -76,123 +36,361 @@ export default function ProjectCard({ project, index = 0 }) {
     const metric2Value = project.metric2_value || '—';
     const metric2Label = project.metric2_label || 'visits/mo';
     const wantsNeeds = project.wants_needs || [];
-    const blocker = project.blocker || '—';
+    const blocker = project.blocker || null;
     const ownerName = project.owner_name || 'Tay';
-    const ownerAvatar = project.owner_avatar || null;
 
     return (
-        <div className="w-full">
+        <div
+            style={{
+                backgroundColor: '#000000',
+                borderRadius: '28px',
+                overflow: 'hidden',
+                color: 'white',
+            }}
+        >
+            {/* COLLAPSED HEADER - Always Visible */}
             <div
-                className="rounded-[32px] p-8 md:p-10"
-                style={{ backgroundColor: cardColor }}
+                onClick={() => setIsExpanded(!isExpanded)}
+                style={{
+                    padding: '24px 32px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'background 0.2s ease',
+                }}
             >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-1">
-                    <span className="text-[#F5F0EB]/40 text-sm font-mono">{formattedIndex}</span>
-                    <div className="flex items-center gap-2">
+                {/* Left: Index + Title + Description */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, minWidth: 0 }}>
+                    <span style={{
+                        fontSize: '14px',
+                        opacity: 0.3,
+                        fontFamily: 'monospace',
+                        fontWeight: '500'
+                    }}>
+                        {formattedIndex}
+                    </span>
+                    <div style={{ minWidth: 0 }}>
+                        <h3 style={{
+                            fontSize: '22px',
+                            fontWeight: '500',
+                            margin: 0,
+                            letterSpacing: '-0.01em'
+                        }}>
+                            {project.title}
+                        </h3>
+                        <p style={{
+                            fontSize: '14px',
+                            opacity: 0.5,
+                            margin: '4px 0 0 0',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '400px'
+                        }}>
+                            {project.description}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Right: Status + Chevron */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        backgroundColor: 'rgba(255,204,0,0.12)',
+                        padding: '6px 14px',
+                        borderRadius: '20px'
+                    }}>
                         <span
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: currentStatus.color }}
+                            style={{
+                                width: '8px',
+                                height: '8px',
+                                borderRadius: '50%',
+                                backgroundColor: currentStatus.color,
+                                animation: status === 'live' ? 'pulse 1.5s infinite' : 'none',
+                            }}
                         />
-                        <span
-                            className="text-sm"
-                            style={{ color: currentStatus.color }}
-                        >
+                        <span style={{
+                            fontSize: '12px',
+                            color: currentStatus.color,
+                            fontWeight: '600'
+                        }}>
                             {currentStatus.label}
                         </span>
                     </div>
-                </div>
 
-                {/* Title & Description */}
-                <h2 className="text-[#F5F0EB] text-4xl md:text-5xl font-light tracking-tight mb-2">
-                    {project.title}
-                </h2>
-                <p className="text-[#F5F0EB]/70 text-base md:text-lg mb-8">
-                    {project.description}
-                </p>
-
-                {/* Meta */}
-                <div className="flex flex-wrap gap-8 md:gap-12 mb-10 text-sm">
-                    <div>
-                        <p className="text-[#F5F0EB]/40 mb-1">Launched</p>
-                        <p className="text-[#F5F0EB]">{launchedDate}</p>
-                    </div>
-                    <div>
-                        <p className="text-[#F5F0EB]/40 mb-1">Audience</p>
-                        <p className="text-[#F5F0EB]">{audience}</p>
-                    </div>
-                    <div>
-                        <p className="text-[#F5F0EB]/40 mb-1">Model</p>
-                        <p className="text-[#F5F0EB]">{model}</p>
-                    </div>
-                </div>
-
-                {/* Metrics */}
-                <div className="flex flex-wrap gap-8 md:gap-10 mb-10">
-                    <div>
-                        <p className="text-[#F5F0EB] text-3xl md:text-4xl font-light">{mrr}</p>
-                        <p className="text-[#F5F0EB]/40 text-sm mt-1">MRR</p>
-                    </div>
-                    <div>
-                        <p className="text-[#F5F0EB] text-3xl md:text-4xl font-light">{metric1Value}</p>
-                        <p className="text-[#F5F0EB]/40 text-sm mt-1">{metric1Label}</p>
-                    </div>
-                    <div>
-                        <p className="text-[#F5F0EB] text-3xl md:text-4xl font-light">{metric2Value}</p>
-                        <p className="text-[#F5F0EB]/40 text-sm mt-1">{metric2Label}</p>
-                    </div>
-                </div>
-
-                <div className="h-px bg-[#F5F0EB]/20 mb-8" />
-
-                {/* Wants & Needs */}
-                {wantsNeeds.length > 0 && (
-                    <div className="mb-8">
-                        <p className="text-[#F5F0EB]/40 text-xs uppercase tracking-widest mb-4">Wants & Needs</p>
-                        <div className="flex flex-wrap gap-2">
-                            {wantsNeeds.map((need, i) => (
-                                <span
-                                    key={i}
-                                    className="px-4 py-2 bg-[#F5F0EB]/10 rounded-full text-[#F5F0EB] text-sm"
-                                >
-                                    {need}
-                                </span>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* Blocker */}
-                <div className="mb-10">
-                    <p className="text-[#F5F0EB]/40 text-xs uppercase tracking-widest mb-2">Blocker</p>
-                    <p className="text-[#F5F0EB]">{blocker}</p>
-                </div>
-
-                {/* Footer */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        {ownerAvatar ? (
-                            <img
-                                src={ownerAvatar}
-                                alt={ownerName}
-                                className="w-8 h-8 rounded-full object-cover"
-                            />
-                        ) : (
-                            <div className="w-8 h-8 rounded-full bg-[#F5F0EB]/20" />
-                        )}
-                        <span className="text-[#F5F0EB]/70 text-sm">{ownerName}</span>
-                    </div>
                     {project.url && (
                         <a
                             href={project.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-6 py-3 bg-[#F5F0EB] rounded-full text-sm font-medium hover:bg-white transition-colors"
-                            style={{ color: cardColor }}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                padding: '10px 20px',
+                                backgroundColor: '#FFCC00',
+                                color: 'black',
+                                borderRadius: '20px',
+                                textDecoration: 'none',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                            }}
                         >
-                            Go to project →
+                            Visit →
                         </a>
                     )}
+
+                    <ChevronDown
+                        style={{
+                            width: '20px',
+                            height: '20px',
+                            opacity: 0.5,
+                            transition: 'transform 0.3s ease',
+                            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+                        }}
+                    />
+                </div>
+            </div>
+
+            {/* EXPANDED CONTENT */}
+            <div
+                style={{
+                    maxHeight: isExpanded ? '800px' : '0',
+                    overflow: 'hidden',
+                    transition: 'max-height 0.4s ease',
+                }}
+            >
+                <div style={{ padding: '0 32px 36px 32px' }}>
+
+                    {/* Divider */}
+                    <div style={{
+                        height: '1px',
+                        backgroundColor: 'rgba(255,255,255,0.08)',
+                        marginBottom: '32px'
+                    }} />
+
+                    {/* METRICS GRID - Visual Hero */}
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(3, 1fr)',
+                        gap: '16px',
+                        marginBottom: '32px'
+                    }}>
+                        {/* MRR */}
+                        <div style={{
+                            backgroundColor: 'rgba(255,255,255,0.04)',
+                            borderRadius: '20px',
+                            padding: '24px',
+                            textAlign: 'center'
+                        }}>
+                            <p style={{
+                                fontSize: '32px',
+                                fontWeight: '300',
+                                margin: 0,
+                                letterSpacing: '-0.02em',
+                                color: '#FFCC00'
+                            }}>
+                                {mrr}
+                            </p>
+                            <p style={{
+                                fontSize: '11px',
+                                opacity: 0.4,
+                                margin: '8px 0 0 0',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em'
+                            }}>
+                                MRR
+                            </p>
+                        </div>
+
+                        {/* Metric 2 */}
+                        <div style={{
+                            backgroundColor: 'rgba(255,255,255,0.04)',
+                            borderRadius: '20px',
+                            padding: '24px',
+                            textAlign: 'center'
+                        }}>
+                            <p style={{
+                                fontSize: '32px',
+                                fontWeight: '300',
+                                margin: 0,
+                                letterSpacing: '-0.02em'
+                            }}>
+                                {metric1Value}
+                            </p>
+                            <p style={{
+                                fontSize: '11px',
+                                opacity: 0.4,
+                                margin: '8px 0 0 0',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em'
+                            }}>
+                                {metric1Label}
+                            </p>
+                        </div>
+
+                        {/* Metric 3 */}
+                        <div style={{
+                            backgroundColor: 'rgba(255,255,255,0.04)',
+                            borderRadius: '20px',
+                            padding: '24px',
+                            textAlign: 'center'
+                        }}>
+                            <p style={{
+                                fontSize: '32px',
+                                fontWeight: '300',
+                                margin: 0,
+                                letterSpacing: '-0.02em'
+                            }}>
+                                {metric2Value}
+                            </p>
+                            <p style={{
+                                fontSize: '11px',
+                                opacity: 0.4,
+                                margin: '8px 0 0 0',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em'
+                            }}>
+                                {metric2Label}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* CONTEXT BAR - Horizontal Pills */}
+                    <div style={{
+                        display: 'flex',
+                        gap: '12px',
+                        marginBottom: '28px',
+                        flexWrap: 'wrap'
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 16px',
+                            backgroundColor: 'rgba(255,255,255,0.06)',
+                            borderRadius: '12px',
+                            fontSize: '13px'
+                        }}>
+                            <Calendar style={{ width: '14px', height: '14px', opacity: 0.5 }} />
+                            <span style={{ opacity: 0.5 }}>Launched</span>
+                            <span style={{ fontWeight: '500' }}>{launchedDate}</span>
+                        </div>
+
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 16px',
+                            backgroundColor: 'rgba(255,255,255,0.06)',
+                            borderRadius: '12px',
+                            fontSize: '13px'
+                        }}>
+                            <Users style={{ width: '14px', height: '14px', opacity: 0.5 }} />
+                            <span style={{ opacity: 0.5 }}>Audience</span>
+                            <span style={{ fontWeight: '500' }}>{audience}</span>
+                        </div>
+
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 16px',
+                            backgroundColor: 'rgba(255,255,255,0.06)',
+                            borderRadius: '12px',
+                            fontSize: '13px'
+                        }}>
+                            <DollarSign style={{ width: '14px', height: '14px', opacity: 0.5 }} />
+                            <span style={{ opacity: 0.5 }}>Model</span>
+                            <span style={{ fontWeight: '500' }}>{model}</span>
+                        </div>
+                    </div>
+
+                    {/* WANTS & NEEDS */}
+                    {wantsNeeds.length > 0 && (
+                        <div style={{ marginBottom: '24px' }}>
+                            <p style={{
+                                fontSize: '11px',
+                                opacity: 0.35,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.1em',
+                                marginBottom: '12px'
+                            }}>
+                                Wants & Needs
+                            </p>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                {wantsNeeds.map((need, i) => (
+                                    <span
+                                        key={i}
+                                        style={{
+                                            padding: '8px 16px',
+                                            backgroundColor: 'rgba(255,204,0,0.1)',
+                                            border: '1px solid rgba(255,204,0,0.2)',
+                                            borderRadius: '20px',
+                                            fontSize: '13px',
+                                            fontWeight: '500',
+                                            color: '#FFCC00'
+                                        }}
+                                    >
+                                        {need}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* BLOCKER - Warning Style */}
+                    {blocker && blocker !== '—' && (
+                        <div style={{
+                            backgroundColor: 'rgba(239,68,68,0.1)',
+                            border: '1px solid rgba(239,68,68,0.2)',
+                            borderRadius: '16px',
+                            padding: '16px 20px',
+                            marginBottom: '24px',
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '12px'
+                        }}>
+                            <AlertCircle style={{
+                                width: '18px',
+                                height: '18px',
+                                color: '#EF4444',
+                                flexShrink: 0,
+                                marginTop: '2px'
+                            }} />
+                            <div>
+                                <p style={{
+                                    fontSize: '11px',
+                                    color: '#EF4444',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.1em',
+                                    marginBottom: '4px',
+                                    fontWeight: '600'
+                                }}>
+                                    Blocker
+                                </p>
+                                <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5' }}>{blocker}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* FOOTER - Owner */}
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        paddingTop: '8px'
+                    }}>
+                        <div style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            border: '2px solid rgba(255,255,255,0.1)'
+                        }} />
+                        <span style={{ fontSize: '14px', opacity: 0.5 }}>{ownerName}</span>
+                    </div>
                 </div>
             </div>
         </div>
