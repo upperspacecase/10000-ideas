@@ -32,9 +32,6 @@ export default function AdminPage() {
         description: "",
         url: "",
         phase: "Ideation",
-        tags: "",
-        needs: "",
-        // New fields
         status: "building",
         launched_date: "",
         audience: "",
@@ -161,9 +158,6 @@ export default function AdminPage() {
                     description: formData.description,
                     url: formData.url || null,
                     phase: formData.phase,
-                    tags: formData.tags.split(",").map(t => t.trim()).filter(Boolean),
-                    needs: formData.needs.split(",").map(n => n.trim()).filter(Boolean),
-                    // New fields
                     status: formData.status,
                     launched_date: formData.launched_date || null,
                     audience: formData.audience || null,
@@ -193,7 +187,7 @@ export default function AdminPage() {
 
     const resetForm = () => {
         setFormData({
-            title: "", description: "", url: "", phase: "Ideation", tags: "", needs: "",
+            title: "", description: "", url: "", phase: "Ideation",
             status: "building", launched_date: "", audience: "", model: "", mrr: "€0",
             metric1_value: "", metric1_label: "users", metric2_value: "", metric2_label: "visits/mo",
             wants_needs: "", blocker: "", owner_name: "Tay"
@@ -208,9 +202,6 @@ export default function AdminPage() {
             description: project.description || "",
             url: project.url || "",
             phase: project.phase || "Ideation",
-            tags: Array.isArray(project.tags) ? project.tags.join(", ") : "",
-            needs: Array.isArray(project.needs) ? project.needs.join(", ") : "",
-            // New fields
             status: project.status || "building",
             launched_date: project.launched_date || "",
             audience: project.audience || "",
@@ -313,16 +304,6 @@ export default function AdminPage() {
                                     <select style={inputStyle} value={formData.phase} onChange={(e) => setFormData({ ...formData, phase: e.target.value })}>
                                         {PHASES.map(phase => (<option key={phase.id} value={phase.id}>{phase.label}</option>))}
                                     </select>
-                                </div>
-
-                                <div>
-                                    <label style={labelStyle}>Tags (comma-separated)</label>
-                                    <input type="text" placeholder="SaaS, AI, Mobile" style={inputStyle} value={formData.tags} onChange={(e) => setFormData({ ...formData, tags: e.target.value })} />
-                                </div>
-
-                                <div>
-                                    <label style={labelStyle}>Needs (comma-separated)</label>
-                                    <input type="text" placeholder="Developer, Designer, Marketing" style={inputStyle} value={formData.needs} onChange={(e) => setFormData({ ...formData, needs: e.target.value })} />
                                 </div>
 
                                 {/* Divider */}
