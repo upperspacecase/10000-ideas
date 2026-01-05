@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, ChevronDown, Tag } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import ProjectCard from "@/components/ProjectCard";
 import { toast } from "react-hot-toast";
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
   const [activeSection, setActiveSection] = useState("hero");
-  const [expandedProject, setExpandedProject] = useState(null);
-  const [ogImages, setOgImages] = useState({});
+
   const [isMobile, setIsMobile] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -37,18 +37,6 @@ export default function HomePage() {
       .then(data => {
         const projectList = Array.isArray(data) ? data : [];
         setProjects(projectList);
-        projectList.forEach(project => {
-          if (project.url) {
-            fetch(`/api/og-metadata?url=${encodeURIComponent(project.url)}`)
-              .then(res => res.json())
-              .then(meta => {
-                if (meta.image) {
-                  setOgImages(prev => ({ ...prev, [project.id]: meta.image }));
-                }
-              })
-              .catch(() => { });
-          }
-        });
       })
       .catch(err => {
         console.error('Error fetching projects:', err);
@@ -267,7 +255,6 @@ export default function HomePage() {
                 const todaysProject = projects.find(p => p.is_todays_launch);
                 if (todaysProject) {
                   scrollToSection(launchedRef);
-                  setTimeout(() => setExpandedProject(todaysProject.id), 300);
                 }
               }}
               style={{
@@ -396,160 +383,16 @@ export default function HomePage() {
               {/* Projects */}
               <div style={{ marginTop: '12px' }}>
                 {phaseProjects.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {phaseProjects.map((project) => {
-                      const isExpanded = expandedProject === project.id;
+                      // Calculate global index for this project
+                      const globalIndex = projects.indexOf(project);
                       return (
-                        <div key={project.id}>
-                          {/* Project Card Header */}
-                          <div
-                            onClick={() => setExpandedProject(isExpanded ? null : project.id)}
-                            style={{
-                              backgroundColor: '#000000',
-                              color: 'white',
-                              borderRadius: isExpanded ? '24px 24px 0 0' : '24px',
-                              padding: isMobile ? '20px' : '28px 36px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              minHeight: '80px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s ease'
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '16px' : '40px', flex: 1, minWidth: 0 }}>
-                              <h3 style={{
-                                fontSize: isMobile ? '18px' : '24px',
-                                fontWeight: '400',
-                                margin: 0,
-                                whiteSpace: 'nowrap'
-                              }}>
-                                {project.title}
-                              </h3>
-                              {!isMobile && (
-                                <p style={{
-                                  fontSize: '13px',
-                                  opacity: 0.5,
-                                  margin: 0,
-                                  maxWidth: '280px',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap'
-                                }}>
-                                  {project.description}
-                                </p>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                              <div style={{
-                                border: '1px solid rgba(255,255,255,0.3)',
-                                borderRadius: '24px',
-                                padding: '6px 16px',
-                                fontSize: '10px',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.1em',
-                                fontFamily: 'monospace'
-                              }}>
-                                {project.phase}
-                              </div>
-                              <ChevronDown style={{
-                                width: '20px',
-                                height: '20px',
-                                transition: 'transform 0.2s ease',
-                                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
-                              }} />
-                            </div>
-                          </div>
-
-                          {/* Expanded Content - Simplified (no join form) */}
-                          {isExpanded && (
-                            <div style={{
-                              backgroundColor: '#000000',
-                              color: 'white',
-                              borderRadius: '0 0 24px 24px',
-                              padding: isMobile ? '24px' : '32px 36px',
-                              display: 'flex',
-                              gap: '32px',
-                              flexDirection: isMobile ? 'column' : 'row'
-                            }}>
-                              {/* OG Image */}
-                              {ogImages[project.id] && (
-                                <div style={{
-                                  width: isMobile ? '100%' : '200px',
-                                  minWidth: isMobile ? 'auto' : '200px',
-                                  height: '150px',
-                                  borderRadius: '12px',
-                                  overflow: 'hidden',
-                                  flexShrink: 0
-                                }}>
-                                  <img
-                                    src={ogImages[project.id]}
-                                    alt={project.title}
-                                    style={{
-                                      width: '100%',
-                                      height: '100%',
-                                      objectFit: 'cover'
-                                    }}
-                                  />
-                                </div>
-                              )}
-
-                              {/* Content */}
-                              <div style={{ flex: 1 }}>
-                                <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>About</h4>
-                                <p style={{ fontSize: '15px', lineHeight: '1.6', marginBottom: '24px' }}>
-                                  {project.description}
-                                </p>
-
-                                {project.url && (
-                                  <a
-                                    href={project.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    style={{
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: '8px',
-                                      padding: '12px 24px',
-                                      backgroundColor: '#00FF00',
-                                      color: 'black',
-                                      borderRadius: '12px',
-                                      textDecoration: 'none',
-                                      fontWeight: '600',
-                                      fontSize: '14px',
-                                      marginBottom: '24px'
-                                    }}
-                                  >
-                                    Visit Project <ArrowRight style={{ width: '16px', height: '16px' }} />
-                                  </a>
-                                )}
-
-                                {project.tags?.length > 0 && (
-                                  <>
-                                    <h4 style={{ fontSize: '14px', opacity: 0.5, marginBottom: '8px', fontWeight: '400' }}>Tags</h4>
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                      {project.tags.map((tag, i) => (
-                                        <div key={i} style={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                          padding: '4px 10px',
-                                          backgroundColor: 'rgba(255,255,255,0.05)',
-                                          borderRadius: '6px',
-                                          fontSize: '12px',
-                                          opacity: 0.7
-                                        }}>
-                                          <Tag style={{ width: '10px', height: '10px' }} />
-                                          {tag}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                        <ProjectCard
+                          key={project.id}
+                          project={project}
+                          index={globalIndex}
+                        />
                       );
                     })}
                   </div>
