@@ -1,6 +1,7 @@
 
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { adminDb } from '@/libs/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import * as cheerio from 'cheerio';
 
 export async function POST(req) {
@@ -18,8 +19,7 @@ export async function POST(req) {
             image_url: "",
             url: url,
             phase: "Ideation",
-            tags: ["imported"],
-            needs: []
+            status: "building"
         };
 
         try {
@@ -42,22 +42,9 @@ export async function POST(req) {
             metadata.description = getMeta('og:description') || getMeta('description') || "No description available.";
             metadata.image_url = getMeta('og:image') || "";
 
-            // Advanced 10k Specific Tags
             // 10k:phase -> e.g. "Launch", "Development"
             const phase = getMeta('10k:phase');
             if (phase) metadata.phase = phase;
-
-            // 10k:tags -> e.g. "AI, SaaS, Mobile"
-            const tagsStr = getMeta('10k:tags') || getMeta('keywords');
-            if (tagsStr) {
-                metadata.tags = tagsStr.split(',').map(s => s.trim()).filter(s => s);
-            }
-
-            // 10k:needs -> e.g. "React Developer, Designer"
-            const needsStr = getMeta('10k:needs');
-            if (needsStr) {
-                metadata.needs = needsStr.split(',').map(s => s.trim()).filter(s => s);
-            }
 
         } catch (scrapeError) {
             console.error("Scraping failed:", scrapeError);
@@ -65,34 +52,20 @@ export async function POST(req) {
             metadata.description = "Imported from URL (Metadata scraping failed)";
         }
 
-        // 2. Insert into Supabase
-        const supabase = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL,
-            process.env.SUPABASE_SERVICE_ROLE_KEY
-        );
+        // 2. Insert into Firestore
+        const projectData = {
+            title: metadata.title,
+            description: metadata.description,
+            url: metadata.url,
+            image_url: metadata.image_url,
+            phase: metadata.phase,
+            status: metadata.status,
+            created_at: FieldValue.serverTimestamp()
+        };
 
-        const { data, error } = await supabase
-            .from("projects")
-            .insert([
-                {
-                    title: metadata.title,
-                    description: metadata.description,
-                    url: metadata.url,
-                    image_url: metadata.image_url,
-                    phase: metadata.phase,
-                    tags: metadata.tags,
-                    needs: metadata.needs,
-                    created_at: new Date().toISOString()
-                }
-            ])
-            .select();
+        const docRef = await adminDb.collection('projects').add(projectData);
 
-        if (error) {
-            console.error("Supabase Error:", error);
-            return NextResponse.json({ error: error.message }, { status: 500 });
-        }
-
-        return NextResponse.json({ success: true, project: data[0] });
+        return NextResponse.json({ success: true, project: { id: docRef.id, ...projectData } });
 
     } catch (error) {
         console.error("API Error:", error);

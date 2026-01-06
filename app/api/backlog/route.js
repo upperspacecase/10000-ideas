@@ -1,36 +1,25 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/libs/supabase';
+import { adminDb } from '@/libs/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export async function GET() {
     try {
-        if (!supabase) {
-            return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-        }
+        const snapshot = await adminDb.collection('backlog_ideas').orderBy('votes', 'desc').get();
 
-        const { data: backlogIdeas, error } = await supabase
-            .from('backlog_ideas')
-            .select('*')
-            .order('votes', { ascending: false })
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('Error fetching backlog ideas:', error);
-            return NextResponse.json({ error: 'Failed to fetch backlog ideas' }, { status: 500 });
-        }
+        const backlogIdeas = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
 
         return NextResponse.json(backlogIdeas);
     } catch (error) {
-        console.error('Unexpected error:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        console.error('Error fetching backlog ideas:', error);
+        return NextResponse.json({ error: 'Failed to fetch backlog ideas' }, { status: 500 });
     }
 }
 
 export async function POST(request) {
     try {
-        if (!supabase) {
-            return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-        }
-
         const body = await request.json();
         const { title, description, category, skills, author } = body;
 
@@ -38,20 +27,21 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const { data: newIdea, error } = await supabase
-            .from('backlog_ideas')
-            .insert({ title, description, category, skills, author, votes: 1 })
-            .select()
-            .single();
+        const ideaData = {
+            title,
+            description,
+            category,
+            skills,
+            author,
+            votes: 1,
+            created_at: FieldValue.serverTimestamp()
+        };
 
-        if (error) {
-            console.error('Error creating backlog idea:', error);
-            return NextResponse.json({ error: 'Failed to create backlog idea' }, { status: 500 });
-        }
+        const docRef = await adminDb.collection('backlog_ideas').add(ideaData);
 
-        return NextResponse.json(newIdea, { status: 201 });
+        return NextResponse.json({ id: docRef.id, ...ideaData }, { status: 201 });
     } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Error creating backlog idea:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }

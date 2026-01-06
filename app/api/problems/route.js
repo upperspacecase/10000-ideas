@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/libs/supabase';
+import { adminDb } from '@/libs/firebase-admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export async function POST(request) {
     try {
-        if (!supabase) {
-            return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-        }
-
         const body = await request.json();
         const { user, problem, jobToBeDone } = body;
 
@@ -14,24 +11,18 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
-        const { data: newProblem, error } = await supabase
-            .from('problems')
-            .insert({
-                user,
-                problem,
-                job_to_be_done: jobToBeDone,
-            })
-            .select()
-            .single();
+        const problemData = {
+            user,
+            problem,
+            job_to_be_done: jobToBeDone,
+            created_at: FieldValue.serverTimestamp()
+        };
 
-        if (error) {
-            console.error('Error creating problem:', error);
-            return NextResponse.json({ error: 'Failed to create problem submission' }, { status: 500 });
-        }
+        const docRef = await adminDb.collection('problems').add(problemData);
 
-        return NextResponse.json(newProblem, { status: 201 });
+        return NextResponse.json({ id: docRef.id, ...problemData }, { status: 201 });
     } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Error creating problem:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
