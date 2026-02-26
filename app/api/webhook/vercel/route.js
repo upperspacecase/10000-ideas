@@ -51,12 +51,25 @@ function verifySignature(rawBody, signature, secret) {
     return computed === signature;
 }
 
+/**
+ * GET — Health check / diagnostic endpoint
+ */
+export async function GET() {
+    const hasSecret = !!process.env.VERCEL_WEBHOOK_SECRET;
+    return NextResponse.json({
+        status: 'ok',
+        webhook: 'vercel',
+        secretConfigured: hasSecret,
+        timestamp: new Date().toISOString(),
+    });
+}
+
 export async function POST(request) {
     try {
         const secret = process.env.VERCEL_WEBHOOK_SECRET;
 
         if (!secret) {
-            console.error('VERCEL_WEBHOOK_SECRET is not configured');
+            console.error('[Vercel Webhook] VERCEL_WEBHOOK_SECRET is not configured');
             return NextResponse.json(
                 { error: 'Webhook secret not configured' },
                 { status: 500 }
@@ -67,7 +80,10 @@ export async function POST(request) {
         const rawBody = await request.text();
         const signature = request.headers.get('x-vercel-signature');
 
+        console.log(`[Vercel Webhook] Received event. Signature present: ${!!signature}. Body length: ${rawBody.length}`);
+
         if (!signature) {
+            console.error('[Vercel Webhook] Missing x-vercel-signature header');
             return NextResponse.json(
                 { error: 'Missing signature' },
                 { status: 401 }
@@ -76,7 +92,7 @@ export async function POST(request) {
 
         // Verify HMAC-SHA1 signature
         if (!verifySignature(rawBody, signature, secret)) {
-            console.error('Webhook signature verification failed');
+            console.error('[Vercel Webhook] Signature verification failed');
             return NextResponse.json(
                 { error: 'Invalid signature' },
                 { status: 401 }
@@ -88,22 +104,26 @@ export async function POST(request) {
         const eventType = event.type;
         const payload = event.payload;
 
+        console.log(`[Vercel Webhook] Event type: ${eventType}, Project: ${payload?.projectName || payload?.name || 'unknown'}`);
+
         // Only handle deployment events we care about
         const newStatus = EVENT_STATUS_MAP[eventType];
         if (!newStatus) {
-            // Event type we don't handle — acknowledge and move on
-            return NextResponse.json({ received: true, action: 'ignored' });
+            console.log(`[Vercel Webhook] Ignoring event type: ${eventType}`);
+            return NextResponse.json({ received: true, action: 'ignored', eventType });
         }
 
-        const {
-            projectId: vercelProjectId,
-            projectName,
-            url: deploymentUrl,
-            deploymentId,
-            target,
-        } = payload;
+        // Vercel payload can nest fields differently depending on event
+        const vercelProjectId = payload.projectId || payload.project?.id;
+        const projectName = payload.projectName || payload.name || payload.project?.name;
+        const deploymentUrl = payload.url || payload.deployment?.url;
+        const deploymentId = payload.deploymentId || payload.deployment?.id || payload.id;
+        const target = payload.target || payload.deployment?.meta?.target;
+
+        console.log(`[Vercel Webhook] Parsed: projectId=${vercelProjectId}, name=${projectName}, url=${deploymentUrl}, target=${target}`);
 
         if (!vercelProjectId) {
+            console.error('[Vercel Webhook] Missing projectId in payload:', JSON.stringify(payload).slice(0, 500));
             return NextResponse.json(
                 { error: 'Missing projectId in payload' },
                 { status: 400 }
@@ -118,7 +138,7 @@ export async function POST(request) {
             .get();
 
         const fullUrl = deploymentUrl
-            ? `https://${deploymentUrl}`
+            ? (deploymentUrl.startsWith('http') ? deploymentUrl : `https://${deploymentUrl}`)
             : null;
 
         if (!snapshot.empty) {
@@ -146,9 +166,7 @@ export async function POST(request) {
 
             await doc.ref.update(updateData);
 
-            console.log(
-                `[Vercel Webhook] Updated project "${projectName}" (${vercelProjectId}) → ${newStatus}`
-            );
+            console.log(`[Vercel Webhook] ✅ Updated project "${projectName}" (${doc.id}) → ${newStatus}`);
 
             return NextResponse.json({
                 received: true,
@@ -191,9 +209,7 @@ export async function POST(request) {
 
             const docRef = await projectsRef.add(newProject);
 
-            console.log(
-                `[Vercel Webhook] Created project "${newProject.title}" (${vercelProjectId}) → ${newStatus}`
-            );
+            console.log(`[Vercel Webhook] ✅ Created project "${newProject.title}" (${docRef.id}) → ${newStatus}`);
 
             return NextResponse.json(
                 {
@@ -206,9 +222,9 @@ export async function POST(request) {
             );
         }
     } catch (error) {
-        console.error('[Vercel Webhook] Error:', error);
+        console.error('[Vercel Webhook] Error:', error.message, error.stack);
         return NextResponse.json(
-            { error: 'Internal server error' },
+            { error: 'Internal server error', details: error.message },
             { status: 500 }
         );
     }

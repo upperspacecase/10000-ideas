@@ -20,6 +20,9 @@ const getPhaseStyle = (phaseId) => {
 };
 
 export default function AdminPage() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [passwordInput, setPasswordInput] = useState("");
+    const [passwordError, setPasswordError] = useState(false);
     const [projects, setProjects] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showAddForm, setShowAddForm] = useState(false);
@@ -27,6 +30,7 @@ export default function AdminPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isFetchingMeta, setIsFetchingMeta] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [webhookStatus, setWebhookStatus] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -46,6 +50,37 @@ export default function AdminPage() {
         owner_name: "Tay"
     });
 
+    // Check sessionStorage on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const stored = sessionStorage.getItem('admin_auth');
+            if (stored === 'true') setIsAuthenticated(true);
+        }
+    }, []);
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin';
+        if (passwordInput === adminPassword) {
+            setIsAuthenticated(true);
+            setPasswordError(false);
+            sessionStorage.setItem('admin_auth', 'true');
+        } else {
+            setPasswordError(true);
+        }
+    };
+
+    // Check webhook status
+    const checkWebhook = async () => {
+        try {
+            const res = await fetch('/api/webhook/vercel');
+            const data = await res.json();
+            setWebhookStatus(data);
+        } catch {
+            setWebhookStatus({ status: 'error', secretConfigured: false });
+        }
+    };
+
     const fetchProjects = async () => {
         setIsLoading(true);
         try {
@@ -61,8 +96,11 @@ export default function AdminPage() {
     };
 
     useEffect(() => {
-        fetchProjects();
-    }, []);
+        if (isAuthenticated) {
+            fetchProjects();
+            checkWebhook();
+        }
+    }, [isAuthenticated]);
 
     // Auto-fetch metadata when URL is pasted
     const handleUrlChange = async (url) => {
@@ -221,6 +259,41 @@ export default function AdminPage() {
     const inputStyle = { width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#F5F2EB', border: 'none', fontSize: '14px' };
     const labelStyle = { display: 'block', fontSize: '12px', fontWeight: '600', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' };
 
+    // ─── LOGIN SCREEN ───
+    if (!isAuthenticated) {
+        return (
+            <div style={{ minHeight: '100vh', backgroundColor: '#F5F2EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '48px', width: '100%', maxWidth: '380px', boxShadow: '0 8px 30px rgba(0,0,0,0.08)' }}>
+                    <h1 style={{ fontSize: '24px', fontWeight: '600', margin: '0 0 8px 0', textAlign: 'center' }}>10K Admin</h1>
+                    <p style={{ fontSize: '14px', color: '#888', textAlign: 'center', margin: '0 0 32px 0' }}>Enter password to continue</p>
+                    <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={passwordInput}
+                            onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(false); }}
+                            autoFocus
+                            style={{
+                                ...inputStyle,
+                                backgroundColor: '#FAF9F7',
+                                border: passwordError ? '2px solid #EF4444' : '2px solid transparent',
+                                textAlign: 'center',
+                                fontSize: '16px',
+                                letterSpacing: '0.1em',
+                            }}
+                        />
+                        {passwordError && (
+                            <p style={{ color: '#EF4444', fontSize: '13px', textAlign: 'center', margin: 0 }}>Wrong password</p>
+                        )}
+                        <button type="submit" style={{ width: '100%', padding: '14px', backgroundColor: '#000', color: 'white', borderRadius: '12px', fontWeight: '600', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
+                            Enter
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div style={{ minHeight: '100vh', backgroundColor: '#F5F2EB', padding: '24px', overflowY: 'auto', overflowX: 'hidden', maxWidth: '100vw', boxSizing: 'border-box' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
@@ -241,6 +314,9 @@ export default function AdminPage() {
                         <button onClick={fetchProjects} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', cursor: 'pointer', fontSize: '14px' }}>
                             <RefreshCw style={{ width: '16px', height: '16px' }} />
                             Refresh
+                        </button>
+                        <button onClick={() => { sessionStorage.removeItem('admin_auth'); setIsAuthenticated(false); }} style={{ padding: '12px 20px', backgroundColor: 'transparent', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', color: '#666' }}>
+                            Logout
                         </button>
                     </div>
                 </div>

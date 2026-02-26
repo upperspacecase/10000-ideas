@@ -20,10 +20,16 @@ export const viewport = {
 	initialScale: 1,
 };
 
-export const metadata = getSEOTags({
-	title: "10,000 IDEAS | Daily Project Launches",
-	description: "An open-source venture studio launching one new project every day. Join a team, submit an idea, or just watch us build.",
-});
+export const metadata = {
+	...getSEOTags({
+		title: "10,000 IDEAS | Daily Project Launches",
+		description: "An open-source venture studio launching one new project every day. Join a team, submit an idea, or just watch us build.",
+	}),
+	icons: {
+		icon: "/dragon-hero.png",
+		apple: "/dragon-hero.png",
+	},
+};
 
 export default function RootLayout({ children }) {
 	return (
