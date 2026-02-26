@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { ArrowRight } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import useEmblaCarousel from "embla-carousel-react";
 import ProjectCard from "@/components/ProjectCard";
 import { toast } from "react-hot-toast";
 
@@ -94,15 +95,120 @@ export default function HomePage() {
   };
 
   const sections = [
-    { id: "hero", label: "10K Ideas", ref: heroRef, color: "#000000" },
-    { id: "manifesto", label: "Manifesto", ref: manifestoRef, color: "#FF4400" },
-    { id: "ideation", label: "Ideation", ref: ideationRef, color: "#FFCC00", phase: "Ideation" },
-    { id: "design", label: "Design", ref: designRef, color: "#FF0066", phase: "Design" },
-    { id: "development", label: "Development", ref: developmentRef, color: "#3333FF", phase: "Development" },
-    { id: "testing", label: "Testing", ref: testingRef, color: "#00CC66", phase: "Testing" },
-    { id: "gtm", label: "GTM", ref: gtmRef, color: "#6600CC", phase: "GTM" },
-    { id: "launched", label: "Launched", ref: launchedRef, color: "#000000", phase: "Post-Launch" },
+    { id: "hero", label: "10K Ideas", ref: heroRef, color: "#000000", gradient: "linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" },
+    { id: "manifesto", label: "Manifesto", ref: manifestoRef, color: "#FF4400", gradient: "linear-gradient(160deg, #ff6a00 0%, #ee0979 50%, #ff6a00 100%)" },
+    { id: "ideation", label: "Ideation", ref: ideationRef, color: "#FFCC00", phase: "Ideation", gradient: "linear-gradient(160deg, #f7971e 0%, #ffd200 50%, #f7971e 100%)" },
+    { id: "design", label: "Design", ref: designRef, color: "#FF0066", phase: "Design", gradient: "linear-gradient(160deg, #fc466b 0%, #3f5efb 50%, #fc466b 100%)" },
+    { id: "development", label: "Development", ref: developmentRef, color: "#3333FF", phase: "Development", gradient: "linear-gradient(160deg, #304ffe 0%, #6200ea 50%, #aa00ff 100%)" },
+    { id: "testing", label: "Testing", ref: testingRef, color: "#00CC66", phase: "Testing", gradient: "linear-gradient(160deg, #00c853 0%, #009624 50%, #004d00 100%)" },
+    { id: "gtm", label: "GTM", ref: gtmRef, color: "#6600CC", phase: "GTM", gradient: "linear-gradient(160deg, #7b1fa2 0%, #4a148c 50%, #12005e 100%)" },
+    { id: "launched", label: "Launched", ref: launchedRef, color: "#000000", phase: "Post-Launch", gradient: "linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)" },
   ];
+
+  // ─── PhaseCarousel: horizontal Embla Carousel of ProjectCards ───
+  const PhaseCarousel = ({ projects: phaseProjects, allProjects, isMobile: mobile }) => {
+    const [emblaRef, emblaApi] = useEmblaCarousel({
+      align: "start",
+      dragFree: true,
+      containScroll: "trimSnaps",
+    });
+
+    const [canScrollPrev, setCanScrollPrev] = useState(false);
+    const [canScrollNext, setCanScrollNext] = useState(false);
+
+    const onSelect = useCallback(() => {
+      if (!emblaApi) return;
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
+    }, [emblaApi]);
+
+    useEffect(() => {
+      if (!emblaApi) return;
+      onSelect();
+      emblaApi.on("select", onSelect);
+      emblaApi.on("reInit", onSelect);
+      return () => {
+        emblaApi.off("select", onSelect);
+        emblaApi.off("reInit", onSelect);
+      };
+    }, [emblaApi, onSelect]);
+
+    return (
+      <div style={{ position: "relative" }}>
+        {/* Carousel viewport */}
+        <div ref={emblaRef} style={{ overflow: "hidden", borderRadius: "16px" }}>
+          <div style={{ display: "flex", gap: "16px", padding: "8px 4px" }}>
+            {phaseProjects.map((project) => {
+              const globalIndex = allProjects.indexOf(project);
+              return (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  index={globalIndex}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Prev / Next arrows (desktop only) */}
+        {!mobile && phaseProjects.length > 1 && (
+          <>
+            {canScrollPrev && (
+              <button
+                onClick={() => emblaApi?.scrollPrev()}
+                style={{
+                  position: "absolute",
+                  left: "-12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(0,0,0,0.7)",
+                  color: "#fff",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                  zIndex: 2,
+                }}
+              >
+                <ChevronLeft style={{ width: 18, height: 18 }} />
+              </button>
+            )}
+            {canScrollNext && (
+              <button
+                onClick={() => emblaApi?.scrollNext()}
+                style={{
+                  position: "absolute",
+                  right: "-12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "50%",
+                  backgroundColor: "rgba(0,0,0,0.7)",
+                  color: "#fff",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+                  zIndex: 2,
+                }}
+              >
+                <ChevronRight style={{ width: 18, height: 18 }} />
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
     <main style={{
@@ -137,7 +243,6 @@ export default function HomePage() {
 
           {sections.map((section, idx) => {
             const isActive = activeSection === section.id;
-            const isLightColor = section.id === 'ideation';
             return (
               <button
                 key={section.id}
@@ -149,8 +254,8 @@ export default function HomePage() {
                   padding: '12px',
                   borderRadius: '12px',
                   border: 'none',
-                  backgroundColor: section.color,
-                  color: isLightColor ? 'black' : 'white',
+                  background: section.gradient,
+                  color: 'white',
                   height: isActive ? '100px' : '60px',
                   textAlign: 'left',
                   cursor: 'pointer',
@@ -300,39 +405,137 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* MANIFESTO SECTION - Orange */}
+        {/* MANIFESTO SECTION – Split: Featured Project + Manifesto */}
         <div ref={manifestoRef} style={{ marginBottom: '16px' }}>
           <div style={{
-            backgroundColor: '#FF4400',
-            borderRadius: '32px',
-            padding: isMobile ? '32px' : '48px',
-            minHeight: isMobile ? 'auto' : '200px',
             display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            color: 'white'
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '12px',
+            minHeight: isMobile ? 'auto' : '350px',
           }}>
-            <span style={{ fontSize: '32px', fontWeight: '300' }}>00</span>
-            <div>
-              <h2 style={{
-                fontSize: isMobile ? 'clamp(40px, 10vw, 80px)' : 'clamp(60px, 8vw, 100px)',
-                fontWeight: '300',
-                lineHeight: '0.9',
-                margin: 0,
-                marginBottom: '32px'
+            {/* Left: Featured Project */}
+            <div style={{
+              flex: 1,
+              background: 'linear-gradient(160deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+              borderRadius: '32px',
+              padding: isMobile ? '28px' : '36px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              {/* Subtle label */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '4px 12px',
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                backdropFilter: 'blur(8px)',
+                width: 'fit-content',
               }}>
-                Manifesto
-              </h2>
-              <div style={{ fontSize: isMobile ? '16px' : '20px', lineHeight: '1.6', opacity: 0.95, maxWidth: '700px' }}>
-                <p style={{ marginBottom: '20px', fontWeight: '500', fontSize: isMobile ? '20px' : '26px' }}>
-                  We live in a world now where you can just do stuff. So we are.
-                </p>
-                <p style={{ marginBottom: '20px' }}>
-                  10K is an open-source venture studio launching one new project every day. We build as a forcing function for creativity.
-                </p>
-                <p style={{ marginBottom: 0, fontWeight: '600' }}>
-                  Join a team, submit an idea, or just watch us build.
-                </p>
+                <span style={{
+                  width: '6px', height: '6px', borderRadius: '50%',
+                  backgroundColor: '#00ff88',
+                  boxShadow: '0 0 8px #00ff88',
+                }} />
+                <span style={{ fontSize: '11px', fontWeight: '600', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Featured
+                </span>
+              </div>
+
+              {/* Featured project content */}
+              {(() => {
+                const featured = projects.find(p => p.is_todays_launch) || projects[0];
+                if (!featured) return (
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
+                    <p style={{ fontSize: '16px' }}>No projects yet</p>
+                  </div>
+                );
+                return (
+                  <div style={{ marginTop: 'auto' }}>
+                    <h3 style={{
+                      fontSize: isMobile ? '28px' : '36px',
+                      fontWeight: '700',
+                      lineHeight: '1.1',
+                      margin: '0 0 12px 0',
+                      letterSpacing: '-0.02em',
+                      textShadow: '0 2px 20px rgba(0,0,0,0.3)',
+                    }}>
+                      {featured.title}
+                    </h3>
+                    {featured.description && (
+                      <p style={{
+                        fontSize: '14px',
+                        lineHeight: '1.5',
+                        color: 'rgba(255,255,255,0.7)',
+                        margin: '0 0 16px 0',
+                        maxWidth: '360px',
+                      }}>
+                        {featured.description}
+                      </p>
+                    )}
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                      {featured.mrr && featured.mrr !== '€0' && (
+                        <span style={{
+                          padding: '6px 14px', backgroundColor: 'rgba(255,255,255,0.12)',
+                          borderRadius: '12px', fontSize: '13px', fontWeight: '600',
+                          backdropFilter: 'blur(8px)',
+                        }}>
+                          {featured.mrr} MRR
+                        </span>
+                      )}
+                      {featured.phase && (
+                        <span style={{
+                          padding: '6px 14px', backgroundColor: 'rgba(255,255,255,0.12)',
+                          borderRadius: '12px', fontSize: '13px', fontWeight: '600',
+                          backdropFilter: 'blur(8px)',
+                        }}>
+                          {featured.phase}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Right: Manifesto */}
+            <div style={{
+              flex: 1,
+              background: 'linear-gradient(160deg, #ff6a00 0%, #ee0979 50%, #ff6a00 100%)',
+              borderRadius: '32px',
+              padding: isMobile ? '28px' : '36px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              color: 'white',
+            }}>
+              <span style={{ fontSize: '28px', fontWeight: '300', opacity: 0.6 }}>00</span>
+              <div>
+                <h2 style={{
+                  fontSize: isMobile ? 'clamp(36px, 8vw, 60px)' : 'clamp(48px, 5vw, 72px)',
+                  fontWeight: '300',
+                  lineHeight: '0.9',
+                  margin: 0,
+                  marginBottom: '24px'
+                }}>
+                  Manifesto
+                </h2>
+                <div style={{ fontSize: isMobile ? '14px' : '16px', lineHeight: '1.6', opacity: 0.95, maxWidth: '500px' }}>
+                  <p style={{ marginBottom: '16px', fontWeight: '500', fontSize: isMobile ? '18px' : '22px' }}>
+                    We live in a world now where you can just do stuff. So we are.
+                  </p>
+                  <p style={{ marginBottom: '16px' }}>
+                    10K is an open-source venture studio launching one new project every day. We build as a forcing function for creativity.
+                  </p>
+                  <p style={{ marginBottom: 0, fontWeight: '600' }}>
+                    Join a team, submit an idea, or just watch us build.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -341,20 +544,19 @@ export default function HomePage() {
         {/* PHASE SECTIONS */}
         {sections.slice(2).map((section, idx) => {
           const phaseProjects = projectsByPhase(section.phase);
-          const isLightBg = section.id === 'ideation';
 
           return (
             <div key={section.id} ref={section.ref} style={{ marginBottom: '16px' }}>
               {/* Section Header */}
               <div style={{
-                backgroundColor: section.color,
+                background: section.gradient,
                 borderRadius: '32px',
                 padding: isMobile ? '32px' : '48px',
                 minHeight: isMobile ? 'auto' : '200px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                color: isLightBg ? 'black' : 'white'
+                color: 'white'
               }}>
                 <span style={{ fontSize: '32px', fontWeight: '300' }}>
                   {String(idx + 1).padStart(2, '0')}
@@ -369,33 +571,26 @@ export default function HomePage() {
                     {section.label}
                   </h2>
                   <span style={{
-                    backgroundColor: isLightBg ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)',
+                    backgroundColor: 'rgba(255,255,255,0.15)',
                     padding: '8px 16px',
                     borderRadius: '20px',
                     fontSize: '14px',
-                    fontWeight: '600'
+                    fontWeight: '600',
+                    backdropFilter: 'blur(8px)',
                   }}>
                     {phaseProjects.length} project{phaseProjects.length !== 1 ? 's' : ''}
                   </span>
                 </div>
               </div>
 
-              {/* Projects */}
+              {/* Projects – Horizontal Carousel */}
               <div style={{ marginTop: '12px' }}>
                 {phaseProjects.length > 0 ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {phaseProjects.map((project) => {
-                      // Calculate global index for this project
-                      const globalIndex = projects.indexOf(project);
-                      return (
-                        <ProjectCard
-                          key={project.id}
-                          project={project}
-                          index={globalIndex}
-                        />
-                      );
-                    })}
-                  </div>
+                  <PhaseCarousel
+                    projects={phaseProjects}
+                    allProjects={projects}
+                    isMobile={isMobile}
+                  />
                 ) : (
                   <div style={{
                     padding: '40px',
