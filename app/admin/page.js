@@ -31,6 +31,15 @@ export default function AdminPage() {
     const [isFetchingMeta, setIsFetchingMeta] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
     const [webhookStatus, setWebhookStatus] = useState(null);
+    const [isMobile, setIsMobile] = useState(false);
+
+    // Mobile detection
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -295,27 +304,27 @@ export default function AdminPage() {
     }
 
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: '#F5F2EB', padding: '24px', overflowY: 'auto', overflowX: 'hidden', maxWidth: '100vw', boxSizing: 'border-box' }}>
+        <div style={{ minHeight: '100vh', backgroundColor: '#F5F2EB', padding: isMobile ? '16px' : '24px', overflowY: 'auto', overflowX: 'hidden', maxWidth: '100vw', boxSizing: 'border-box' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
                 {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'stretch' : 'center', justifyContent: 'space-between', marginBottom: isMobile ? '20px' : '32px', gap: isMobile ? '16px' : '0' }}>
                     <div>
-                        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#666', textDecoration: 'none', marginBottom: '16px', fontSize: '14px' }}>
+                        <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#666', textDecoration: 'none', marginBottom: '8px', fontSize: '14px' }}>
                             <ArrowLeft style={{ width: '16px', height: '16px' }} />
-                            Back to Home
+                            Back
                         </Link>
-                        <h1 style={{ fontSize: '32px', fontWeight: '400', margin: 0 }}>Admin Dashboard</h1>
+                        <h1 style={{ fontSize: isMobile ? '24px' : '32px', fontWeight: '400', margin: 0 }}>Admin Dashboard</h1>
                     </div>
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        <button onClick={() => setShowAddForm(true)} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', backgroundColor: '#FF4400', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                        <button onClick={() => setShowAddForm(true)} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: isMobile ? '10px 14px' : '12px 20px', backgroundColor: '#FF4400', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', fontWeight: '600', flex: isMobile ? '1 1 auto' : 'none' }}>
                             <Plus style={{ width: '16px', height: '16px' }} />
-                            Add Project
+                            Add
                         </button>
-                        <button onClick={fetchProjects} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', cursor: 'pointer', fontSize: '14px' }}>
+                        <button onClick={fetchProjects} style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: isMobile ? '10px 14px' : '12px 20px', backgroundColor: 'white', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', flex: isMobile ? '1 1 auto' : 'none' }}>
                             <RefreshCw style={{ width: '16px', height: '16px' }} />
                             Refresh
                         </button>
-                        <button onClick={() => { sessionStorage.removeItem('admin_auth'); setIsAuthenticated(false); }} style={{ padding: '12px 20px', backgroundColor: 'transparent', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', cursor: 'pointer', fontSize: '14px', color: '#666' }}>
+                        <button onClick={() => { sessionStorage.removeItem('admin_auth'); setIsAuthenticated(false); }} style={{ padding: isMobile ? '10px 14px' : '12px 20px', backgroundColor: 'transparent', border: '1px solid rgba(0,0,0,0.1)', borderRadius: '12px', cursor: 'pointer', fontSize: '13px', color: '#666', flex: isMobile ? '1 1 auto' : 'none' }}>
                             Logout
                         </button>
                     </div>
@@ -323,10 +332,10 @@ export default function AdminPage() {
 
                 {/* Delete Confirmation Modal */}
                 {deleteConfirm && (
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                        <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
+                        <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: isMobile ? '24px' : '32px', width: '100%', maxWidth: '400px', textAlign: 'center' }}>
                             <h2 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '12px' }}>Delete Project?</h2>
-                            <p style={{ color: '#666', marginBottom: '24px' }}>Are you sure you want to delete &quot;{deleteConfirm.title}&quot;? This cannot be undone.</p>
+                            <p style={{ color: '#666', marginBottom: '24px', fontSize: '14px' }}>Are you sure you want to delete &quot;{deleteConfirm.title}&quot;? This cannot be undone.</p>
                             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                                 <button onClick={() => setDeleteConfirm(null)} style={{ padding: '12px 24px', backgroundColor: '#F5F2EB', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px' }}>Cancel</button>
                                 <button onClick={() => deleteProject(deleteConfirm.id)} style={{ padding: '12px 24px', backgroundColor: '#FF0000', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '14px', fontWeight: '600' }}>Delete</button>
@@ -337,8 +346,8 @@ export default function AdminPage() {
 
                 {/* Add/Edit Project Modal */}
                 {(showAddForm || editProject) && (
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-                        <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: isMobile ? 'flex-end' : 'center', justifyContent: 'center', zIndex: 1000 }}>
+                        <div style={{ backgroundColor: 'white', borderRadius: isMobile ? '24px 24px 0 0' : '24px', padding: isMobile ? '24px 20px' : '32px', width: '100%', maxWidth: isMobile ? '100%' : '500px', maxHeight: isMobile ? '85vh' : '90vh', overflowY: 'auto' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                                 <h2 style={{ fontSize: '24px', fontWeight: '500', margin: 0 }}>{editProject ? "Edit Project" : "Add New Project"}</h2>
                                 <button onClick={resetForm} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -470,13 +479,50 @@ export default function AdminPage() {
                     </div>
                 )}
 
-                {/* Projects Table */}
-                <div style={{ backgroundColor: 'white', borderRadius: '24px', border: '1px solid rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+                {/* Projects List */}
+                <div style={{ backgroundColor: 'white', borderRadius: isMobile ? '16px' : '24px', border: '1px solid rgba(0,0,0,0.05)', overflow: 'hidden' }}>
                     {isLoading ? (
                         <div style={{ padding: '48px', textAlign: 'center' }}>Loading...</div>
                     ) : projects.length === 0 ? (
-                        <div style={{ padding: '48px', textAlign: 'center', color: '#666' }}>No projects yet. Click &quot;Add Project&quot; to create one.</div>
+                        <div style={{ padding: '48px 24px', textAlign: 'center', color: '#666' }}>No projects yet. Tap &quot;Add&quot; to create one.</div>
+                    ) : isMobile ? (
+                        /* ─── MOBILE: Card Layout ─── */
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            {projects.map((project) => (
+                                <div key={project.id} onClick={() => openEditModal(project)} style={{ padding: '16px', borderBottom: '1px solid rgba(0,0,0,0.05)', cursor: 'pointer' }}>
+                                    {/* Title + Phase */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
+                                        <div style={{ fontWeight: '500', fontSize: '15px', flex: 1 }}>{project.title}</div>
+                                        <div onClick={(e) => e.stopPropagation()}>
+                                            <select value={project.phase} onChange={(e) => updatePhase(project.id, e.target.value)} style={{ padding: '4px 10px', borderRadius: '12px', border: 'none', fontSize: '11px', fontWeight: '600', cursor: 'pointer', ...getPhaseStyle(project.phase) }}>
+                                                {PHASES.map((phase) => (<option key={phase.id} value={phase.id} style={{ backgroundColor: 'white', color: 'black' }}>{phase.label}</option>))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    {/* Description */}
+                                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '10px' }}>{project.description?.slice(0, 80)}...</div>
+                                    {/* URL */}
+                                    {project.url && (
+                                        <div onClick={(e) => e.stopPropagation()} style={{ fontSize: '12px', color: '#3333FF', marginBottom: '10px' }}>
+                                            <a href={project.url} target="_blank" rel="noopener noreferrer">{(() => { try { return new URL(project.url).hostname; } catch { return project.url; } })()}</a>
+                                        </div>
+                                    )}
+                                    {/* Actions Row */}
+                                    <div onClick={(e) => e.stopPropagation()} style={{ display: 'flex', gap: '8px' }}>
+                                        <button onClick={() => setTodaysLaunch(project.id)} style={{ padding: '6px 12px', backgroundColor: project.is_todays_launch ? '#FF4400' : 'transparent', color: project.is_todays_launch ? 'white' : '#666', border: project.is_todays_launch ? 'none' : '1px solid rgba(0,0,0,0.1)', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                                            <Star style={{ width: '12px', height: '12px', fill: project.is_todays_launch ? 'white' : 'none' }} />
+                                            {project.is_todays_launch ? "Live" : "Set Live"}
+                                        </button>
+                                        <button onClick={() => setDeleteConfirm(project)} style={{ padding: '6px 12px', backgroundColor: 'transparent', color: '#FF0000', border: '1px solid #FF0000', borderRadius: '8px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                                            <Trash2 style={{ width: '12px', height: '12px' }} />
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
+                        /* ─── DESKTOP: Table Layout ─── */
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
                                 <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
