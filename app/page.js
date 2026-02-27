@@ -137,7 +137,7 @@ export default function HomePage() {
       <div style={{ position: "relative" }}>
         {/* Carousel viewport */}
         <div ref={emblaRef} style={{ overflow: "hidden", borderRadius: "16px" }}>
-          <div style={{ display: "flex", gap: "16px", padding: "8px 4px" }}>
+          <div className="embla__container" style={{ display: "flex", gap: "16px", padding: "8px 4px" }}>
             {phaseProjects.map((project) => {
               const globalIndex = allProjects.indexOf(project);
               return (
