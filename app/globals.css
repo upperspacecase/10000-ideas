@@ -44,10 +44,16 @@ body {
   }
 
   /* Allow Embla carousel containers to expand beyond viewport */
-  .embla__container,
-  .embla__container div {
+  .embla__container {
     max-width: none !important;
     overflow-x: visible !important;
+  }
+
+  /* Allow 3D card flip to work properly */
+  .card-3d,
+  .card-3d-inner {
+    max-width: none !important;
+    overflow: visible !important;
   }
 }
 

@@ -62,10 +62,12 @@ export default function ProjectCard({ project, index = 0 }) {
     const wantsNeeds = project.wants_needs || [];
     const blocker = project.blocker || null;
 
+    const imageUrl = project.image_url || null;
+
     return (
         <div
             onClick={() => setIsFlipped(!isFlipped)}
-            className="group"
+            className="group card-3d"
             style={{
                 perspective: "1200px",
                 width: "220px",
@@ -75,6 +77,7 @@ export default function ProjectCard({ project, index = 0 }) {
             }}
         >
             <div
+                className="card-3d-inner"
                 style={{
                     position: "relative",
                     width: "100%",
@@ -102,9 +105,38 @@ export default function ProjectCard({ project, index = 0 }) {
                     }}
                     className="transition-transform duration-300 group-hover:scale-[1.05]"
                 >
+                    {/* Background image from OG/Vercel preview */}
+                    {imageUrl && (
+                        <img
+                            src={imageUrl}
+                            alt=""
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                                borderRadius: "16px",
+                            }}
+                        />
+                    )}
+                    {/* Dark overlay so text stays readable */}
+                    {imageUrl && (
+                        <div
+                            style={{
+                                position: "absolute",
+                                inset: 0,
+                                background: "linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.7) 100%)",
+                                borderRadius: "16px",
+                            }}
+                        />
+                    )}
+
                     {/* Top: Index */}
                     <span
                         style={{
+                            position: "relative",
+                            zIndex: 1,
                             fontFamily: "monospace",
                             fontSize: "13px",
                             fontWeight: "600",
@@ -115,7 +147,7 @@ export default function ProjectCard({ project, index = 0 }) {
                     </span>
 
                     {/* Bottom: Title + Status */}
-                    <div>
+                    <div style={{ position: "relative", zIndex: 1 }}>
                         <h3
                             style={{
                                 fontSize: "22px",
