@@ -2,6 +2,22 @@ import { NextResponse } from 'next/server';
 import { adminDb } from '@/libs/firebase-admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
+async function fetchOgImage(url) {
+    try {
+        const response = await fetch(url, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; 10kIdeasBot/1.0)' },
+            signal: AbortSignal.timeout(5000),
+        });
+        if (!response.ok) return null;
+        const html = await response.text();
+        const match = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
+            html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
+        return match ? match[1] : null;
+    } catch {
+        return null;
+    }
+}
+
 export async function GET() {
     try {
         const snapshot = await adminDb.collection('projects').get();
@@ -10,6 +26,20 @@ export async function GET() {
             id: doc.id,
             ...doc.data()
         }));
+
+        // Auto-fetch OG images for projects that have a URL but no image_url
+        const fetchPromises = projects
+            .filter(p => p.url && !p.image_url)
+            .map(async (project) => {
+                const ogImage = await fetchOgImage(project.url);
+                if (ogImage) {
+                    project.image_url = ogImage;
+                    // Save it back so we don't re-fetch next time
+                    adminDb.collection('projects').doc(project.id).update({ image_url: ogImage }).catch(() => {});
+                }
+            });
+
+        await Promise.all(fetchPromises);
 
         return NextResponse.json(projects);
     } catch (error) {

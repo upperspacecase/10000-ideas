@@ -41,6 +41,7 @@ export async function PATCH(request, { params }) {
         if (body.wants_needs !== undefined) updateData.wants_needs = body.wants_needs;
         if (body.blocker !== undefined) updateData.blocker = body.blocker;
         if (body.owner_name !== undefined) updateData.owner_name = body.owner_name;
+        if (body.image_url !== undefined) updateData.image_url = body.image_url;
 
         await adminDb.collection('projects').doc(id).update(updateData);
 
