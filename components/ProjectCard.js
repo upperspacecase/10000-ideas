@@ -72,6 +72,7 @@ export default function ProjectCard({ project, index = 0 }) {
                 perspective: "1200px",
                 width: "220px",
                 minWidth: "220px",
+                flexShrink: 0,
                 height: "330px",
                 cursor: "pointer",
             }}
