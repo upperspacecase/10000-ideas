@@ -217,7 +217,8 @@ export default function HomePage() {
       height: '100vh',
       width: '100%',
       backgroundColor: '#F5F2EB',
-      overflow: isMobile ? 'auto' : 'hidden'
+      overflow: isMobile ? 'auto' : 'hidden',
+      overflowX: 'hidden'
     }}>
       {/* Left Navigation - Hidden on mobile */}
       {!isMobile && (
@@ -281,7 +282,9 @@ export default function HomePage() {
         ref={scrollContainerRef}
         style={{
           flex: 1,
+          minWidth: 0,
           height: isMobile ? 'auto' : '100%',
+          overflowX: 'hidden',
           overflowY: isMobile ? 'visible' : 'auto',
           padding: isMobile ? '16px' : '8px'
         }}
