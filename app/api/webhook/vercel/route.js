@@ -120,7 +120,14 @@ export async function POST(request) {
         const deploymentId = payload.deploymentId || payload.deployment?.id || payload.id;
         const target = payload.target || payload.deployment?.meta?.target;
 
-        console.log(`[Vercel Webhook] Parsed: projectId=${vercelProjectId}, name=${projectName}, url=${deploymentUrl}, target=${target}`);
+        // Extract the production domain alias (e.g. "bigtree-pearl.vercel.app")
+        // Vercel sends alias info via aliasAssigned, alias array, or aliasDomains
+        const aliases = payload.aliasAssigned
+            ? [payload.aliasAssigned]
+            : (payload.alias || payload.aliasDomains || []);
+        const primaryAlias = aliases.length > 0 ? aliases[0] : null;
+
+        console.log(`[Vercel Webhook] Parsed: projectId=${vercelProjectId}, name=${projectName}, deploymentUrl=${deploymentUrl}, alias=${primaryAlias}, target=${target}`);
 
         if (!vercelProjectId) {
             console.error('[Vercel Webhook] Missing projectId in payload:', JSON.stringify(payload).slice(0, 500));
@@ -137,7 +144,14 @@ export async function POST(request) {
             .limit(1)
             .get();
 
-        const fullUrl = deploymentUrl
+        // Prefer the production domain alias over the ephemeral deployment URL
+        const bestUrl = primaryAlias || deploymentUrl;
+        const fullUrl = bestUrl
+            ? (bestUrl.startsWith('http') ? bestUrl : `https://${bestUrl}`)
+            : null;
+
+        // Also keep the raw deployment URL for reference
+        const fullDeploymentUrl = deploymentUrl
             ? (deploymentUrl.startsWith('http') ? deploymentUrl : `https://${deploymentUrl}`)
             : null;
 
@@ -156,7 +170,7 @@ export async function POST(request) {
             // Only update URL if this is a production deployment
             if (target === 'production' && fullUrl) {
                 updateData.url = fullUrl;
-                updateData.vercel_deployment_url = fullUrl;
+                updateData.vercel_deployment_url = fullDeploymentUrl || fullUrl;
             }
 
             // Update phase if target is known
@@ -180,6 +194,7 @@ export async function POST(request) {
                 title: prettifyProjectName(projectName || 'Untitled'),
                 description: null,
                 url: fullUrl,
+                vercel_alias: primaryAlias ? `https://${primaryAlias}` : null,
                 phase: TARGET_PHASE_MAP[target] || 'Development',
                 status: newStatus,
                 launched_date: newStatus === 'live'
@@ -199,7 +214,7 @@ export async function POST(request) {
                 // Vercel-specific fields
                 vercel_project_id: vercelProjectId,
                 vercel_deployment_id: deploymentId || null,
-                vercel_deployment_url: fullUrl,
+                vercel_deployment_url: fullDeploymentUrl || fullUrl,
                 deployed_at: event.createdAt
                     ? new Date(event.createdAt).toISOString()
                     : null,
