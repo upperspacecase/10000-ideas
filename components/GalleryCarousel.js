@@ -11,27 +11,12 @@ const STAGE_COLORS = {
   "Post-Launch": "var(--stage-launched)",
 };
 
-const STATUS_LABELS = {
-  live: "Live",
-  launching: "Launching",
-  building: "Building",
-  paused: "Paused",
-};
-
-function getStatus(project) {
-  if (project.status) return project.status;
-  if (project.phase === "Post-Launch") return "live";
-  if (project.phase === "GTM") return "launching";
-  return "building";
-}
-
-function CardImage({ project }) {
+function CardImage({ url }) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
 
-  // Screenshot the actual live site
-  const src = project.url
-    ? `/api/screenshot?url=${encodeURIComponent(project.url)}`
+  const src = url
+    ? `/api/screenshot?url=${encodeURIComponent(url)}`
     : null;
 
   if (!src || errored) return null;
@@ -59,6 +44,8 @@ function CardImage({ project }) {
 export default function GalleryCarousel({ projects }) {
   const viewportRef = useRef(null);
   const stripRef = useRef(null);
+  const buttonsRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
   const stateRef = useRef({
     currentScroll: 0,
     targetScroll: 0,
@@ -70,6 +57,13 @@ export default function GalleryCarousel({ projects }) {
 
   const cardWidth = 220;
 
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
   const animate = useCallback(() => {
     const s = stateRef.current;
     const cards = stripRef.current?.children;
@@ -78,13 +72,15 @@ export default function GalleryCarousel({ projects }) {
     if (!s.isDragging) {
       s.targetScroll += s.velocity;
       s.velocity *= 0.95;
-      s.targetScroll += 0.5;
+      s.targetScroll += 0.5; // auto-scroll
     }
 
     s.currentScroll += (s.targetScroll - s.currentScroll) * 0.1;
 
     const totalSetWidth = projects.length * cardWidth;
     const winWidth = window.innerWidth;
+
+    const cardDistances = [];
 
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
@@ -102,13 +98,41 @@ export default function GalleryCarousel({ projects }) {
 
         card.style.transform = `translateX(${x}px) translateZ(${z}px) rotateY(${rotateY}deg)`;
         card.style.opacity = String(1 - Math.pow(Math.abs(progress), 3));
+
+        cardDistances.push({ index: i, distance: Math.abs(virtualIndex) });
       } else {
         card.style.display = "none";
       }
     }
 
+    // Update buttons directly in the DOM for instant sync
+    cardDistances.sort((a, b) => a.distance - b.distance);
+    const mobile = window.innerWidth < 640;
+    const top = cardDistances
+      .slice(0, mobile ? 1 : 3)
+      .sort((a, b) => a.index - b.index);
+    const container = buttonsRef.current;
+    if (container) {
+      const buttons = container.children;
+      for (let b = 0; b < buttons.length; b++) {
+        const btn = buttons[b];
+        const entry = top[b];
+        if (entry) {
+          const p = projects[entry.index];
+          const color = STAGE_COLORS[p.phase] || "var(--stage-development)";
+          btn.textContent = p.title;
+          btn.href = p.url || "#";
+          btn.style.backgroundColor = color;
+          btn.style.display = "block";
+          btn.setAttribute("aria-label", `Visit ${p.title}`);
+        } else {
+          btn.style.display = "none";
+        }
+      }
+    }
+
     s.rafId = requestAnimationFrame(animate);
-  }, [projects.length]);
+  }, [projects]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -175,213 +199,214 @@ export default function GalleryCarousel({ projects }) {
     };
   }, [projects.length, animate]);
 
+  const buttonStyle = {
+    display: "none",
+    padding: "12px 16px",
+    backgroundColor: "var(--stage-development)",
+    borderRadius: "var(--radius-full)",
+    color: "#fff",
+    textDecoration: "none",
+    fontFamily: "var(--font-body)",
+    fontSize: "13px",
+    fontWeight: 600,
+    textAlign: "center",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    boxShadow: "0 4px 16px rgba(0,0,0,0.1)",
+    minHeight: "44px",
+    lineHeight: "20px",
+    width: isMobile ? "100%" : 160,
+  };
+
   return (
-    <div
-      ref={viewportRef}
-      style={{
-        position: "absolute",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        width: "100vw",
-        height: "40vh",
-        perspective: "1200px",
-        overflow: "visible",
-        cursor: "grab",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <>
+      {/* Carousel viewport -- fills parent */}
       <div
-        ref={stripRef}
+        ref={viewportRef}
         style={{
-          position: "relative",
-          width: "100%",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "100vw",
           height: "100%",
-          transformStyle: "preserve-3d",
-          willChange: "transform",
+          perspective: "1200px",
+          overflow: "visible",
+          cursor: "grab",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        {projects.map((project, index) => {
-          const status = getStatus(project);
-          const stageColor =
-            STAGE_COLORS[project.phase] || "var(--stage-development)";
-          const formattedIndex = String(index + 1).padStart(2, "0");
+        <div
+          ref={stripRef}
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            transformStyle: "preserve-3d",
+            willChange: "transform",
+          }}
+        >
+          {projects.map((project) => {
+            const stageColor =
+              STAGE_COLORS[project.phase] || "var(--stage-development)";
+            const liveUrl = project.url || null;
 
-          return (
-            <a
-              key={project.id}
-              href={project.url || undefined}
-              target={project.url ? "_blank" : undefined}
-              rel={project.url ? "noopener noreferrer" : undefined}
-              onClick={(e) => {
-                if (stateRef.current.isDragging) e.preventDefault();
-              }}
-              style={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                width: "200px",
-                height: "260px",
-                marginLeft: "-100px",
-                marginTop: "-130px",
-                background: stageColor,
-                transformStyle: "preserve-3d",
-                willChange: "transform, opacity",
-                boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
-                borderRadius: "var(--radius-lg)",
-                color: "#fff",
-                textDecoration: "none",
-                overflow: "hidden",
-                transition: "box-shadow 0.4s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 20px 60px rgba(0,0,0,0.2)";
-                e.currentTarget.style.zIndex = "1000";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 10px 40px rgba(0,0,0,0.12)";
-                e.currentTarget.style.zIndex = "auto";
-              }}
-            >
-              {/* OG image background */}
-              <CardImage project={project} />
-
-              {/* Gradient overlay for text readability */}
+            return (
               <div
+                key={project.id}
+                role="link"
+                tabIndex={0}
+                onPointerDown={(e) => {
+                  e.currentTarget.dataset.downX = e.clientX;
+                  e.currentTarget.dataset.downY = e.clientY;
+                }}
+                onPointerUp={(e) => {
+                  const dx = Math.abs(
+                    e.clientX - Number(e.currentTarget.dataset.downX || 0)
+                  );
+                  const dy = Math.abs(
+                    e.clientY - Number(e.currentTarget.dataset.downY || 0)
+                  );
+                  if (dx < 10 && dy < 10 && liveUrl) {
+                    window.open(liveUrl, "_blank", "noopener,noreferrer");
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && liveUrl) {
+                    window.open(liveUrl, "_blank", "noopener,noreferrer");
+                  }
+                }}
                 style={{
                   position: "absolute",
-                  inset: 0,
-                  background:
-                    "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.55) 100%)",
-                  pointerEvents: "none",
+                  top: "50%",
+                  left: "50%",
+                  width: "200px",
+                  height: "260px",
+                  marginLeft: "-100px",
+                  marginTop: "-130px",
+                  background: stageColor,
+                  transformStyle: "preserve-3d",
+                  willChange: "transform, opacity",
+                  boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
+                  borderRadius: "var(--radius-lg)",
+                  color: "#fff",
+                  textDecoration: "none",
+                  overflow: "hidden",
+                  transition: "box-shadow 0.4s ease",
                 }}
-              />
-
-              {/* Content on top */}
-              <div
-                style={{
-                  position: "relative",
-                  zIndex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  height: "100%",
-                  padding: "var(--sp-md)",
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow =
+                    "0 20px 60px rgba(0,0,0,0.2)";
+                  e.currentTarget.style.zIndex = "1000";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow =
+                    "0 10px 40px rgba(0,0,0,0.12)";
+                  e.currentTarget.style.zIndex = "auto";
                 }}
               >
+                <CardImage url={liveUrl} />
+
                 <div
                   style={{
+                    position: "absolute",
+                    inset: 0,
+                    background:
+                      "linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.55) 100%)",
+                    pointerEvents: "none",
+                  }}
+                />
+
+                <div
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
                     display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    height: "100%",
+                    padding: "var(--sp-md)",
                   }}
                 >
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "11px",
-                      fontWeight: 600,
-                      color: "rgba(255,255,255,0.6)",
-                      textShadow: "0 1px 4px rgba(0,0,0,0.4)",
-                    }}
-                  >
-                    {formattedIndex}
-                  </span>
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "4px",
-                      padding: "2px 8px",
-                      backgroundColor: "rgba(0,0,0,0.4)",
-                      backdropFilter: "blur(8px)",
-                      borderRadius: "var(--radius-full)",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "9px",
-                      fontWeight: 600,
-                      letterSpacing: "0.05em",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: "5px",
-                        height: "5px",
-                        borderRadius: "50%",
-                        backgroundColor:
-                          status === "live"
-                            ? "var(--success)"
-                            : "rgba(255,255,255,0.6)",
-                        boxShadow:
-                          status === "live"
-                            ? "0 0 6px var(--success)"
-                            : "none",
-                      }}
-                    />
-                    {STATUS_LABELS[status] || "Building"}
-                  </span>
-                </div>
-
-                <div>
-                  <h3
-                    style={{
-                      fontFamily: "var(--font-body)",
-                      fontSize: "17px",
-                      fontWeight: 700,
-                      lineHeight: 1.15,
-                      margin: "0 0 6px 0",
-                      letterSpacing: "-0.01em",
-                      textShadow: "0 2px 8px rgba(0,0,0,0.5)",
-                    }}
-                  >
-                    {project.title}
-                  </h3>
-
-                  {project.description && (
-                    <p
+                  <div>
+                    <h3
                       style={{
                         fontFamily: "var(--font-body)",
-                        fontSize: "11px",
-                        lineHeight: 1.4,
-                        color: "rgba(255,255,255,0.85)",
-                        margin: "0 0 8px 0",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        textShadow: "0 1px 4px rgba(0,0,0,0.4)",
+                        fontSize: "17px",
+                        fontWeight: 700,
+                        lineHeight: 1.15,
+                        margin: "0 0 6px 0",
+                        letterSpacing: "-0.01em",
+                        textShadow: "0 2px 8px rgba(0,0,0,0.5)",
                       }}
                     >
-                      {project.description}
-                    </p>
-                  )}
+                      {project.title}
+                    </h3>
 
-                  {project.phase && (
-                    <span
-                      style={{
-                        display: "inline-block",
-                        padding: "3px 10px",
-                        backgroundColor: "rgba(255,255,255,0.15)",
-                        backdropFilter: "blur(4px)",
-                        borderRadius: "var(--radius-full)",
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "10px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {project.phase}
-                    </span>
-                  )}
+                    {project.description && (
+                      <p
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: "11px",
+                          lineHeight: 1.4,
+                          color: "rgba(255,255,255,0.85)",
+                          margin: "0 0 8px 0",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          textShadow: "0 1px 4px rgba(0,0,0,0.4)",
+                        }}
+                      >
+                        {project.description}
+                      </p>
+                    )}
+
+                    {project.phase && (
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "3px 10px",
+                          backgroundColor: stageColor,
+                          borderRadius: "var(--radius-full)",
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "10px",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {project.phase}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </a>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-    </div>
+
+      {/* Buttons below carousel -- updated directly from animation loop */}
+      <div
+        ref={buttonsRef}
+        style={{
+          position: "absolute",
+          bottom: "16px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          display: "flex",
+          gap: "var(--sp-sm)",
+          zIndex: 200,
+          width: isMobile ? "calc(100% - 40px)" : "auto",
+          justifyContent: "center",
+        }}
+      >
+        <a href="#" target="_blank" rel="noopener noreferrer" style={buttonStyle}> </a>
+        {!isMobile && <a href="#" target="_blank" rel="noopener noreferrer" style={buttonStyle}> </a>}
+        {!isMobile && <a href="#" target="_blank" rel="noopener noreferrer" style={buttonStyle}> </a>}
+      </div>
+    </>
   );
 }

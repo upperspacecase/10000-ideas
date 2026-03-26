@@ -48,41 +48,13 @@ async function getBrowser() {
   });
 }
 
-// Convert Vercel preview URLs to production URLs
-// Preview: project-name-abc123hash-user-projects.vercel.app (auth-gated)
-// Production: project-name.vercel.app (public)
-function normalizeVercelUrl(rawUrl) {
-  try {
-    const parsed = new URL(rawUrl);
-    const hostname = parsed.hostname;
-
-    if (!hostname.endsWith(".vercel.app")) return rawUrl;
-
-    const subdomain = hostname.replace(".vercel.app", "");
-
-    // Pattern 1: name-hash-user-projects (most common)
-    const p1 = subdomain.match(/^(.+)-[a-z0-9]{7,}-[a-z0-9]+-projects$/);
-    if (p1) return `https://${p1[1]}.vercel.app${parsed.pathname}`;
-
-    // Pattern 2: name-hash (no -projects suffix)
-    const p2 = subdomain.match(/^(.+)-[a-z0-9]{7,}$/);
-    if (p2) return `https://${p2[1]}.vercel.app${parsed.pathname}`;
-
-    return rawUrl;
-  } catch {
-    return rawUrl;
-  }
-}
-
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const rawUrl = searchParams.get("url");
+  const url = searchParams.get("url");
 
-  if (!rawUrl) {
+  if (!url) {
     return NextResponse.json({ error: "Missing url param" }, { status: 400 });
   }
-
-  const url = normalizeVercelUrl(rawUrl);
 
   // Check cache
   const cached = cache.get(url);
@@ -109,12 +81,17 @@ export async function GET(request) {
     const status = response?.status() || 0;
     const pageTitle = await page.title();
 
+    const titleLower = pageTitle.toLowerCase();
     if (
       status === 401 ||
       status === 403 ||
       status === 404 ||
-      pageTitle.toLowerCase().includes("log in to vercel") ||
-      pageTitle.toLowerCase().includes("vercel - login")
+      titleLower.includes("log in to vercel") ||
+      titleLower.includes("vercel - login") ||
+      titleLower === "404: this page could not be found" ||
+      titleLower.includes("page not found") ||
+      titleLower === "" ||
+      titleLower === "vercel"
     ) {
       await browser.close();
       return NextResponse.json(

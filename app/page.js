@@ -6,7 +6,6 @@ import GalleryCarousel from "@/components/GalleryCarousel";
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState("");
 
   useEffect(() => {
     fetch("/api/projects")
@@ -21,40 +20,29 @@ export default function HomePage() {
       });
   }, []);
 
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (!email) return;
-    alert("You have been added to the queue.");
-    setEmail("");
-  };
-
   return (
     <main
       style={{
         backgroundColor: "var(--bg)",
         color: "var(--text-primary)",
         fontFamily: "var(--font-mono)",
-        height: "100vh",
+        height: "100dvh",
         overflow: "hidden",
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between",
         position: "relative",
       }}
     >
       {/* Header */}
       <header
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          padding: "24px 32px",
+          position: "relative",
+          padding: "16px 20px",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
           zIndex: 100,
-          pointerEvents: "none",
+          flexShrink: 0,
         }}
       >
         <div
@@ -83,87 +71,56 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Gallery */}
-      <GalleryCarousel projects={projects} />
+      {/* Gallery -- fills the middle */}
+      <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
+        <GalleryCarousel projects={projects} />
+      </div>
 
-      {/* Waitlist */}
+      {/* CTA -- always visible at bottom */}
       <div
         style={{
-          position: "fixed",
-          bottom: "40px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "100%",
-          maxWidth: "320px",
-          textAlign: "center",
+          position: "relative",
           zIndex: 200,
+          flexShrink: 0,
+          padding: "12px 20px 24px",
+          display: "flex",
+          justifyContent: "center",
           opacity: loading ? 0 : 1,
           transition: "opacity 2s ease",
         }}
       >
-        <span
-          style={{
-            fontFamily: "var(--font-mono)",
-            fontSize: "9px",
-            textTransform: "uppercase",
-            letterSpacing: "0.2em",
-            marginBottom: "12px",
-            color: "var(--text-muted)",
-            display: "block",
-          }}
-        >
-          Request Access
-        </span>
-        <form
-          onSubmit={handleSubscribe}
-          style={{
-            position: "relative",
-            display: "flex",
-            alignItems: "center",
-            borderBottom: "1px solid var(--border-strong)",
-            paddingBottom: "8px",
-          }}
-        >
-          <label htmlFor="waitlist-email" className="sr-only">
-            Email address
-          </label>
-          <input
-            id="waitlist-email"
-            type="email"
-            placeholder="email address"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+        <div style={{ width: "100%", maxWidth: "320px", textAlign: "center" }}>
+          <span
             style={{
-              background: "transparent",
-              border: "none",
-              outline: "none",
-              width: "100%",
               fontFamily: "var(--font-mono)",
-              fontSize: "13px",
-              color: "var(--text-primary)",
-              paddingRight: "40px",
-            }}
-          />
-          <button
-            type="submit"
-            style={{
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: "var(--font-mono)",
-              fontSize: "10px",
+              fontSize: "9px",
               textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              color: "var(--text-primary)",
-              position: "absolute",
-              right: 0,
-              opacity: 0.5,
+              letterSpacing: "0.2em",
+              marginBottom: "12px",
+              color: "var(--text-muted)",
+              display: "block",
             }}
           >
-            Join
-          </button>
-        </form>
+            Work With Us
+          </span>
+          <a
+            href="mailto:hi@life-time.co"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              borderBottom: "1px solid var(--border-strong)",
+              paddingBottom: "8px",
+              fontFamily: "var(--font-mono)",
+              fontSize: "16px",
+              color: "var(--text-primary)",
+              textDecoration: "none",
+              minHeight: "44px",
+            }}
+          >
+            hi@life-time.co
+          </a>
+        </div>
       </div>
 
       {/* Loading overlay */}
