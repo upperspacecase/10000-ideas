@@ -289,7 +289,7 @@ export default function HomePage() {
         {/* HERO SECTION */}
         <div ref={heroRef} style={{ marginBottom: '16px' }}>
           <div style={{
-            backgroundColor: '#F5F0E8',
+            backgroundColor: '#F5F2EB',
             borderRadius: '32px',
             padding: isMobile ? '24px' : '0',
             minHeight: isMobile ? 'auto' : '450px',
