@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from "react";
 import GalleryCarousel from "@/components/GalleryCarousel";
+import {
+  CARD_WIDTH,
+  CARD_HEIGHT,
+  CARD_GAP,
+  CARD_RADIUS,
+  FEATURED_WIDTH,
+} from "@/components/gallery-constants";
 
 export default function HomePage() {
   const [projects, setProjects] = useState([]);
@@ -71,6 +78,98 @@ export default function HomePage() {
         </div>
       </header>
 
+      {/* Featured project banner */}
+      {(() => {
+        const featured = projects.find((p) => p.is_todays_launch);
+        if (!featured) return null;
+        return (
+          <div
+            style={{
+              flexShrink: 0,
+              display: "flex",
+              justifyContent: "center",
+              padding: "0 20px",
+              zIndex: 100,
+            }}
+          >
+            <a
+              href={featured.url || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                position: "relative",
+                width: "100%",
+                maxWidth: `${FEATURED_WIDTH}px`,
+                height: `${CARD_HEIGHT}px`,
+                borderRadius: CARD_RADIUS,
+                overflow: "hidden",
+                display: "flex",
+                alignItems: "flex-end",
+                textDecoration: "none",
+                color: "#fff",
+              }}
+            >
+              <img
+                src={`/api/screenshot?url=${encodeURIComponent(featured.url)}`}
+                alt=""
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%)",
+                }}
+              />
+              <div
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  padding: "16px 20px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <span
+                  style={{
+                    padding: "4px 10px",
+                    backgroundColor: "var(--accent)",
+                    borderRadius: CARD_RADIUS,
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "9px",
+                    fontWeight: 700,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "#fff",
+                    flexShrink: 0,
+                  }}
+                >
+                  Featured
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "16px",
+                    fontWeight: 700,
+                    textShadow: "0 1px 4px rgba(0,0,0,0.4)",
+                  }}
+                >
+                  {featured.title}
+                </span>
+              </div>
+            </a>
+          </div>
+        );
+      })()}
+
       {/* Gallery -- fills the middle */}
       <div style={{ flex: 1, position: "relative", minHeight: 0 }}>
         <GalleryCarousel projects={projects} />
@@ -98,7 +197,7 @@ export default function HomePage() {
             padding: "12px 32px",
             backgroundColor: "var(--text-primary)",
             color: "var(--bg)",
-            borderRadius: "var(--radius-full)",
+            borderRadius: CARD_RADIUS,
             fontFamily: "var(--font-mono)",
             fontSize: "10px",
             fontWeight: 600,

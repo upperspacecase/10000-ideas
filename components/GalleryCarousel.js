@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { CARD_WIDTH, CARD_HEIGHT, CARD_GAP, CARD_RADIUS } from "./gallery-constants";
 
 const STAGE_COLORS = {
   Ideation: "var(--stage-ideation)",
@@ -55,7 +56,7 @@ export default function GalleryCarousel({ projects }) {
     rafId: null,
   });
 
-  const cardWidth = 220;
+  const cardWidth = CARD_WIDTH + CARD_GAP;
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
@@ -203,7 +204,7 @@ export default function GalleryCarousel({ projects }) {
     display: "none",
     padding: "12px 16px",
     backgroundColor: "var(--stage-development)",
-    borderRadius: "var(--radius-full)",
+    borderRadius: CARD_RADIUS,
     color: "#fff",
     textDecoration: "none",
     fontFamily: "var(--font-body)",
@@ -283,15 +284,15 @@ export default function GalleryCarousel({ projects }) {
                   position: "absolute",
                   top: "50%",
                   left: "50%",
-                  width: "200px",
-                  height: "260px",
-                  marginLeft: "-100px",
-                  marginTop: "-130px",
+                  width: `${CARD_WIDTH}px`,
+                  height: `${CARD_HEIGHT}px`,
+                  marginLeft: `${-CARD_WIDTH / 2}px`,
+                  marginTop: `${-CARD_HEIGHT / 2}px`,
                   background: stageColor,
                   transformStyle: "preserve-3d",
                   willChange: "transform, opacity",
                   boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
-                  borderRadius: "var(--radius-lg)",
+                  borderRadius: CARD_RADIUS,
                   color: "#fff",
                   textDecoration: "none",
                   overflow: "hidden",
