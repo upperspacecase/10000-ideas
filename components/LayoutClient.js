@@ -50,7 +50,7 @@ const ClientLayout = ({ children }) => {
     <>
       <SessionProvider>
         {/* Content inside app/page.js files  */}
-        <div className="min-h-screen bg-[#F5F2EB]">
+        <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
           {children}
         </div>
 

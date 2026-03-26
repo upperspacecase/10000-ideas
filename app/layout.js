@@ -1,17 +1,20 @@
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Instrument_Serif, Instrument_Sans } from "next/font/google";
 import { getSEOTags } from "@/libs/seo";
 import ClientLayout from "@/components/LayoutClient";
 import config from "@/config";
 import "./globals.css";
 
-const spaceGrotesk = Space_Grotesk({
+const instrumentSerif = Instrument_Serif({
+	weight: "400",
 	subsets: ["latin"],
-	variable: "--font-sans"
+	variable: "--font-instrument-serif",
+	display: "swap",
 });
 
-const inter = Inter({
+const instrumentSans = Instrument_Sans({
 	subsets: ["latin"],
-	variable: "--font-mono"
+	variable: "--font-instrument-sans",
+	display: "swap",
 });
 
 export const viewport = {
@@ -36,7 +39,7 @@ export default function RootLayout({ children }) {
 		<html
 			lang="en"
 			data-theme={config.colors.theme}
-			className={`${spaceGrotesk.variable} ${inter.variable}`}
+			className={`${instrumentSerif.variable} ${instrumentSans.variable}`}
 		>
 			<body>
 				<ClientLayout>{children}</ClientLayout>
