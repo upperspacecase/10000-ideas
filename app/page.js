@@ -238,7 +238,7 @@ export default function HomePage() {
             marginBottom: '8px',
             border: '1px solid rgba(0,0,0,0.05)'
           }}>
-            <h1 style={{ fontWeight: 'bold', fontSize: '18px', letterSpacing: '-0.02em', margin: 0 }}>10K IDEAS</h1>
+            <div style={{ fontWeight: 'bold', fontSize: '18px', letterSpacing: '-0.02em', margin: 0 }} role="banner" aria-label="10K Ideas">10K IDEAS</div>
           </div>
 
           {sections.map((section, idx) => {
