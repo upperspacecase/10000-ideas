@@ -695,10 +695,33 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '24px', fontSize: '14px' }}>
-              <a href="mailto:hello@10kideas.co" style={{ color: 'black', textDecoration: 'underline' }}>Contact Us</a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" style={{ color: 'black', textDecoration: 'underline' }}>Twitter</a>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: 'black', textDecoration: 'underline' }}>GitHub</a>
+            <div style={{ display: 'flex', gap: '12px', fontSize: '14px' }}>
+              {[
+                { href: 'mailto:hello@10kideas.co', label: 'Contact Us' },
+                { href: 'https://twitter.com', label: 'Twitter', external: true },
+                { href: 'https://github.com', label: 'GitHub', external: true },
+              ].map(({ href, label, external }) => (
+                <a
+                  key={label}
+                  href={href}
+                  {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  className="footer-link"
+                  style={{
+                    color: 'black',
+                    textDecoration: 'none',
+                    padding: '12px 16px',
+                    borderRadius: '8px',
+                    minHeight: '44px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    transition: 'background-color 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.06)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                >
+                  {label}
+                </a>
+              ))}
             </div>
 
             <div style={{ fontSize: '14px', opacity: 0.6 }}>

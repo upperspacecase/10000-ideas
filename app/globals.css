@@ -113,3 +113,24 @@ body {
 .char-3 {
   animation-delay: 0.4s;
 }
+
+/* Focus-visible ring for interactive elements */
+.footer-link:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-char {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
