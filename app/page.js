@@ -259,7 +259,7 @@ export default function HomePage() {
                   height: isActive ? '100px' : '60px',
                   textAlign: 'left',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
+                  transition: 'opacity 0.3s ease, transform 0.3s ease, height 0.3s ease',
                   opacity: isActive ? 1 : 0.85,
                   transform: isActive ? 'scale(1.02)' : 'scale(1)'
                 }}
