@@ -110,7 +110,7 @@ export default function HomePage() {
               }}
             >
               <img
-                src={`/api/screenshot?url=${encodeURIComponent(featured.url)}`}
+                src={featured.featured_image || `/api/screenshot?url=${encodeURIComponent(featured.url)}`}
                 alt=""
                 style={{
                   position: "absolute",

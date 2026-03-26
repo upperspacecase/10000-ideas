@@ -39,6 +39,7 @@ export async function POST(request) {
             wants_needs: body.wants_needs || [],
             blocker: body.blocker || null,
             owner_name: body.owner_name || 'Tay',
+            featured_image: body.featured_image || null,
             is_todays_launch: body.is_todays_launch || false,
             created_at: FieldValue.serverTimestamp()
         };
