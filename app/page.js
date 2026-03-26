@@ -344,9 +344,11 @@ export default function HomePage() {
                 </h1>
               </div>
               <p style={{
-                fontSize: '14px',
-                opacity: 0.5,
-                marginTop: '16px'
+                fontSize: '16px',
+                opacity: 0.7,
+                marginTop: '16px',
+                fontWeight: '500',
+                letterSpacing: '0.02em',
               }}>
                 An Open-Source Venture Studio
               </p>
