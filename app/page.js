@@ -527,7 +527,7 @@ export default function HomePage() {
                 }}>
                   Manifesto
                 </h2>
-                <div style={{ fontSize: isMobile ? '14px' : '16px', lineHeight: '1.6', opacity: 0.95, maxWidth: '500px' }}>
+                <div style={{ fontSize: '16px', lineHeight: '1.6', opacity: 0.95, maxWidth: '500px' }}>
                   <p style={{ marginBottom: '16px', fontWeight: '500', fontSize: isMobile ? '18px' : '22px' }}>
                     We live in a world now where you can just do stuff. So we are.
                   </p>
