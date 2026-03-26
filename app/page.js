@@ -89,38 +89,30 @@ export default function HomePage() {
           transition: "opacity 2s ease",
         }}
       >
-        <div style={{ width: "100%", maxWidth: "320px", textAlign: "center" }}>
-          <span
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "9px",
-              textTransform: "uppercase",
-              letterSpacing: "0.2em",
-              marginBottom: "12px",
-              color: "var(--text-muted)",
-              display: "block",
-            }}
-          >
-            Work With Us
-          </span>
-          <a
-            href="mailto:hi@life-time.co"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              borderBottom: "1px solid var(--border-strong)",
-              paddingBottom: "8px",
-              fontFamily: "var(--font-mono)",
-              fontSize: "16px",
-              color: "var(--text-primary)",
-              textDecoration: "none",
-              minHeight: "44px",
-            }}
-          >
-            hi@life-time.co
-          </a>
-        </div>
+        <a
+          href="mailto:hi@life-time.co"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "12px 32px",
+            backgroundColor: "var(--text-primary)",
+            color: "var(--bg)",
+            borderRadius: "var(--radius-full)",
+            fontFamily: "var(--font-mono)",
+            fontSize: "10px",
+            fontWeight: 600,
+            letterSpacing: "0.15em",
+            textTransform: "uppercase",
+            textDecoration: "none",
+            minHeight: "44px",
+            transition: "opacity 0.2s ease",
+          }}
+          onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.8"; }}
+          onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+        >
+          Work With Us
+        </a>
       </div>
 
       {/* Loading overlay */}
